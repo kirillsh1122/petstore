@@ -1,5 +1,9 @@
 # Step-by-Step Guide for Module 4 (Container Apps)
 
+> ⚠️ **Disclaimer**: Azure evolves faster than your coffee gets cold ☕ — so don’t be surprised if some buttons move around, screenshots look different, or steps shift slightly. That’s not a bug, it’s the cloud lifestyle. You're engineers, not screenshot-following robots, so roll with it, trust your instincts, and when in doubt — read the docs, Google like a pro, or ask ChatGPT (we won’t judge 😉).
+
+<hr>
+
 <!-- TOC -->
   * [Steps 1 and 2: Set Up Azure Resources, Build and Push Docker Images](#steps-1-and-2-set-up-azure-resources-build-and-push-docker-images)
   * [Step 3: Deploy Services to Azure Container Apps](#step-3-deploy-services-to-azure-container-apps)

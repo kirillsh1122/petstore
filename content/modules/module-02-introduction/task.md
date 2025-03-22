@@ -1,5 +1,9 @@
 # Module 2: Azure CLI. Introduction to Azure Container Registry and App Services
 
+> ⚠️ **Disclaimer**: Azure evolves faster than your coffee gets cold ☕ — so don’t be surprised if some buttons move around, screenshots look different, or steps shift slightly. That’s not a bug, it’s the cloud lifestyle. You're engineers, not screenshot-following robots, so roll with it, trust your instincts, and when in doubt — read the docs, Google like a pro, or ask ChatGPT (we won’t judge 😉).
+
+<hr>
+
 **Please complete the following task:**
 
 <!-- TOC -->
