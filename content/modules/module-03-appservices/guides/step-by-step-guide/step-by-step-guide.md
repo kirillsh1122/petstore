@@ -23,8 +23,12 @@ Before you start, make sure you have the following in place:
 2. **Docker Tools**:
     - **Note**: EPAM has removed Docker Desktop from the standard software toolset, so it cannot be installed on your EPAM devices.
     - **Windows Users**: Set up the Docker Engine using WSL2 following [this guide](../setting-up-docker-on-windows-using-wsl2/setting-up-docker-on-windows-using-wsl2.md). You can also explore other methods for setting up Docker as described [here](https://kb.epam.com/pages/releaseview.action?spaceKey=EPMSAM&title=Docker+Alternatives).
-    - **macOS Users**: Use any of the methods described [here](https://kb.epam.com/pages/releaseview.action?spaceKey=EPMSAM&title=Docker+Alternatives) to set up Docker.
     - **Linux Users**: Install the Docker Engine command-line tools on your Linux distribution. Refer to the Docker documentation for installation instructions based on your distribution.
+    - **macOS Users**: Use any of the methods described [here](https://kb.epam.com/pages/releaseview.action?spaceKey=EPMSAM&title=Docker+Alternatives) to set up Docker.
+
+    > 💻 **Are you using an M1 or M2 Mac?**  
+    Then Docker may build images for ARM64, which Azure App Service does not support.  
+    Read [this guide](./working-with-arm64-on-mac.md) to fix platform mismatch issues.
 
 3. **Basic Docker Knowledge**: Understand basic Docker concepts, such as building images from Dockerfiles, tagging images, and pushing them to a container registry.
 
@@ -232,6 +236,15 @@ To deploy your Webs in the Azure portal:
   <img src="images/st-03-02-02.png" width="800" style="border: 1px solid #ccc; margin: 20px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); display: inline-block;"/>
   <br>
   <img src="images/st-03-02-03.png" width="800" style="border: 1px solid #ccc; margin: 20px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); display: inline-block;"/>
+
+  <hr>
+
+  <img src="images/application-error.png" width="600" style="border: 1px solid #ccc; margin: 20px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); display: inline-block;"/>
+
+> ⚠️ **Troubleshooting tip**: If you see an "Application Error" screen when opening your application, it usually means the container failed to start.
+> 
+> Follow this guide to troubleshoot and fix it:  
+> [What to do if you see 'Application Error'](./fixing-application-error-after-deployment.md)
 
 
 3. **Deploy Public API Services to one region**
