@@ -1,5 +1,9 @@
 # Fixing Azure Container Registry Authentication Issue
 
+> ⚠️ **Disclaimer**: Between WSL, Docker, Azure CLI, and Windows settings, there are more moving parts here than in a Swiss watch. If something suddenly breaks — it’s probably not your fault. Azure updates, WSL quirks, or Docker daemon mood swings might be the cause. Stay calm, read the error, Google wisely, and if all else fails — try turning it off and on again. Or ask ChatGPT — it doesn’t judge, only explains 😎.
+
+<hr>
+
 ## The problem
 
 When trying to authenticate with Azure Container Registry (ACR) using the command:
