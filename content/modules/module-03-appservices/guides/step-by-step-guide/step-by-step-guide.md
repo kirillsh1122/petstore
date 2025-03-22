@@ -237,15 +237,13 @@ To deploy your Webs in the Azure portal:
   <br>
   <img src="images/st-03-02-03.png" width="800" style="border: 1px solid #ccc; margin: 20px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); display: inline-block;"/>
 
-  <hr>
-
-  <img src="images/application-error.png" width="600" style="border: 1px solid #ccc; margin: 20px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); display: inline-block;"/>
+<hr>
 
 > ⚠️ **Troubleshooting tip**: If you see an "Application Error" screen when opening your application, it usually means the container failed to start.
-> 
-> Follow this guide to troubleshoot and fix it:  
-> [What to do if you see 'Application Error'](./fixing-application-error-after-deployment.md)
+> <img src="images/application-error.png" width="600" style="border: 1px solid #ccc; margin: 20px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); display: inline-block;"/>
+> Follow [this guide](./fixing-application-error-after-deployment.md) to troubleshoot and fix it.
 
+<hr>
 
 3. **Deploy Public API Services to one region**
 
