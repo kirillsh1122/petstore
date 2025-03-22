@@ -251,11 +251,9 @@ To deploy your Webs in the Azure portal:
 
   <img src="images/st-03-03-01.png" width="800" style="border: 1px solid #ccc; margin: 20px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); display: inline-block;"/>
 
-> **NOTE**: If you encounter an error at this stage, please make sure that your Dockerfile contains the `EXPOSE 8080` instruction or set the environment variable `WEBSITES_PORT=8080` (see section 4 below).
-
 4. **Configure environment variables**
 
->Environment variables are dynamic values that are used by operating systems, applications, and services to store configuration settings, system paths, and other information that can be accessed and utilized by programs running on a computer or within a cloud environment. These variables provide a way to store data that may vary from system to system or from application to application.
+>**Environment variables** are dynamic values that are used by operating systems, applications, and services to store configuration settings, system paths, and other information that can be accessed and utilized by programs running on a computer or within a cloud environment. These variables provide a way to store data that may vary from system to system or from application to application.
 
 - In each App Service, find the "Configuration" section. This is where you can customize various settings for your app.
 - Add environment variables to configure URLs between services. These variables are essential for services to communicate with each other.

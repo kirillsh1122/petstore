@@ -26,19 +26,40 @@ This usually means the container was pulled successfully, but failed to start co
 
 ## Solution steps
 
-### Step 1: Set `WEBSITES_PORT`
+### Step 1: Set `WEBSITES_PORT` (Required) and `EXPOSE` (Recommended)
 
-Azure needs to know which internal port your container listens on.
+Azure needs to know which internal port your container listens on. It **does not detect** this automatically from your Dockerfile — even if it contains an `EXPOSE` instruction.
+
+#### 1.1: Set `WEBSITES_PORT=8080` in App Service (Required)
 
 1. Go to your **App Service** in the Azure portal.
 2. Navigate to **Configuration** → **Application settings**.
-3. Add the setting:
-   ```
+3. Add the following setting:
+   ```bash
    Name: WEBSITES_PORT
    Value: 8080
    ```
 4. Click **Save**.
 5. Restart the App Service from the **Overview** tab.
+
+> Without this setting, Azure won't be able to route HTTP traffic to your container, and your app will show an “Application Error” screen.
+
+---
+
+#### 1.2: Add `EXPOSE 8080` to your Dockerfile (Optional but Recommended)
+
+While Azure does not use the `EXPOSE` instruction to detect the port, it’s still good practice to include it:
+
+```Dockerfile
+EXPOSE 8080
+```
+
+Benefits of adding `EXPOSE`:
+- Improves clarity and documentation of your image
+- Helps when using `docker run -P` or multi-platform builds
+- Required by some tools (e.g., Docker Compose or ACR Tasks) to infer container behavior
+
+> So: always **set `WEBSITES_PORT=8080`** in App Service, and **optionally add `EXPOSE 8080`** in your Dockerfile to follow best practices.
 
 ---
 
