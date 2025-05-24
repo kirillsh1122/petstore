@@ -18,7 +18,6 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Calendar;
-import java.util.List;
 
 /**
  * Singleton to store container state
@@ -49,12 +48,6 @@ public class ContainerEnvironment implements Serializable {
 
 	@Value("${petstore.apim.host:}")
 	private String petstoreAPIMHost;
-
-	@Value("#{T(java.util.Arrays).asList('${petstore.logging.additional-headers-to-log:}')}")
-	private List<String> additionalHeadersToLog;
-
-	@Value("#{T(java.util.Arrays).asList('${petstore.logging.additional-headers-to-send:}')}")
-	private List<String> additionalHeadersToSend;
 
 	@Autowired
 	private CacheManager currentUsersCacheManager;
