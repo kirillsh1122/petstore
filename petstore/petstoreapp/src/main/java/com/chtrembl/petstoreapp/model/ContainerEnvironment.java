@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -63,9 +64,13 @@ public class ContainerEnvironment implements Serializable {
 
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
-			Version version = objectMapper.readValue(new ClassPathResource("version.json").getFile(), Version.class);
-			this.setAppVersion(version.getVersion());
-			this.setAppDate(version.getDate());
+			ClassPathResource resource = new ClassPathResource("version.json");
+
+			try (InputStream inputStream = resource.getInputStream()) {
+				Version version = objectMapper.readValue(inputStream, Version.class);
+				this.setAppVersion(version.getVersion());
+				this.setAppDate(version.getDate());
+			}
 		} catch (IOException e) {
 			logger.info("Error parsing file " + e.getMessage());
 			this.setAppVersion("unknown");
