@@ -17,11 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 import java.util.Map;
 
-/**
- * Stub for overriding during Unit Testing. (Should really live in Test package)
- */
 public class TelemetryClient extends com.microsoft.applicationinsights.TelemetryClient {
-	private static final String message = "azure.application-insights.instrumentation-key not found, considering configuring Application Inisghts if you would like to track Telemtry.";
+	private static final String message = "azure.application-insights.instrumentation-key not found, considering configuring Application Insights if you would like to track Telemetry.";
 	private static final Logger logger = LoggerFactory.getLogger(TelemetryClient.class);
 
 	@Override

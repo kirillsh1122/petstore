@@ -1,20 +1,17 @@
 package com.chtrembl.petstoreapp.controller;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.chtrembl.petstoreapp.model.ContainerEnvironment;
+import com.chtrembl.petstoreapp.model.Order;
+import com.chtrembl.petstoreapp.model.Pet;
+import com.chtrembl.petstoreapp.model.User;
+import com.chtrembl.petstoreapp.service.PetStoreService;
+import com.microsoft.applicationinsights.telemetry.PageViewTelemetry;
+import com.nimbusds.jose.shaded.json.JSONArray;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -27,36 +24,22 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.RequestContextHolder;
 
-import com.chtrembl.petstoreapp.model.ContainerEnvironment;
-import com.chtrembl.petstoreapp.model.Order;
-import com.chtrembl.petstoreapp.model.Pet;
-import com.chtrembl.petstoreapp.model.User;
-import com.chtrembl.petstoreapp.service.PetStoreService;
-import com.microsoft.applicationinsights.telemetry.PageViewTelemetry;
-import com.nimbusds.jose.shaded.json.JSONArray;
+import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Map;
 
-/**
- * Web Controller for all of the model/presentation construction and various
- * endpoints
- */
 @Controller
+@RequiredArgsConstructor
 public class WebAppController {
-	private static Logger logger = LoggerFactory.getLogger(WebAppController.class);
-
-	@Autowired
-	private ContainerEnvironment containerEnvironment;
-
-	@Autowired
-	private PetStoreService petStoreService;
-
-
-	@Autowired
-	private User sessionUser;
-
-	@Autowired
-	private CacheManager currentUsersCacheManager;
-
+	private static final Logger logger = LoggerFactory.getLogger(WebAppController.class);
 	private static final String CURRENT_USERS_HUB = "currentUsers";
+
+	private final ContainerEnvironment containerEnvironment;
+	private final PetStoreService petStoreService;
+	private final User sessionUser;
+	private final CacheManager currentUsersCacheManager;
 
 	@ModelAttribute
 	public void setModel(HttpServletRequest request, Model model, OAuth2AuthenticationToken token) {
@@ -65,16 +48,12 @@ public class WebAppController {
 				.getCache(CURRENT_USERS_HUB);
 		com.github.benmanes.caffeine.cache.Cache<Object, Object> nativeCache = caffeineCache.getNativeCache();
 
-		// this is used for n tier correlated Telemetry. Keep the same one for anonymous
-		// sessions that get authenticateds
 		if (this.sessionUser.getSessionId() == null) {
 			String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
 			this.sessionUser.setSessionId(sessionId);
-			// put session in TTL cache so its there after initial login
 			caffeineCache.put(this.sessionUser.getSessionId(), this.sessionUser.getName());
 		}
 
-		// put session in TTL cache to refresh TTL
 		caffeineCache.put(this.sessionUser.getSessionId(), this.sessionUser.getName());
 
 		if (token != null) {
@@ -87,7 +66,6 @@ public class WebAppController {
 						this.sessionUser.getName(), e.getMessage()));
 			}
 
-			// this should really be done in the authentication/pre auth flow....
 			this.sessionUser.setName((String) user.getAttributes().get("name"));
 
 			if (!this.sessionUser.isInitialTelemetryRecorded()) {
@@ -105,14 +83,10 @@ public class WebAppController {
 
 		model.addAttribute("userName", this.sessionUser.getName());
 		model.addAttribute("containerEnvironment", this.containerEnvironment);
-
 		model.addAttribute("sessionId", this.sessionUser.getSessionId());
-
 		model.addAttribute("appVersion", this.containerEnvironment.getAppVersion());
-
 		model.addAttribute("cartSize", this.sessionUser.getCartCount());
-
-		model.addAttribute("currentUsersOnSite", nativeCache.asMap().keySet().size());
+		model.addAttribute("currentUsersOnSite", nativeCache.asMap().size());
 
 		MDC.put("session_Id", this.sessionUser.getSessionId());
 	}
@@ -128,14 +102,10 @@ public class WebAppController {
 		return "login";
 	}
 
-	// multiple endpoints to generate some Telemetry and allowing for
-	// differentiation
 	@GetMapping(value = { "/dogbreeds", "/catbreeds", "/fishbreeds" })
 	public String breeds(Model model, OAuth2AuthenticationToken token, HttpServletRequest request,
 			@RequestParam(name = "category") String category) throws URISyntaxException {
 
-		// quick validation, should really be done in validators, check for cross side
-		// scripting etc....
 		if (!"Dog".equals(category) && !"Cat".equals(category) && !"Fish".equals(category)) {
 			return "home";
 		}
@@ -150,8 +120,6 @@ public class WebAppController {
 			@RequestParam(name = "category") String category, @RequestParam(name = "id") int id)
 			throws URISyntaxException {
 
-		// quick validation, should really be done in validators, check for cross side
-		// scripting etc....
 		if (!"Dog".equals(category) && !"Cat".equals(category) && !"Fish".equals(category)) {
 			return "home";
 		}
@@ -182,16 +150,11 @@ public class WebAppController {
 			@RequestParam(name = "category") String category, @RequestParam(name = "id") int id)
 			throws URISyntaxException {
 
-		// quick validation, should really be done in validators, check for cross side
-		// scripting etc....
 		if (!"Toy".equals(category) && !"Food".equals(category)) {
 			return "home";
 		}
 		logger.info(String.format("PetStoreApp /products requested for %s, routing to products view...", category));
 
-		// for stateless container(s), this container may not have products loaded, this
-		// is a temp fix until we implement caching, specifically a distributed/redis
-		// cache
 		Collection<Pet> pets = this.petStoreService.getPets(category);
 
 		Pet pet = new Pet();
@@ -234,7 +197,7 @@ public class WebAppController {
 			}
 		}
 
-		this.petStoreService.updateOrder(Long.valueOf(params.get("productId")), cartCount, false);
+		this.petStoreService.updateOrder(Long.parseLong(params.get("productId")), cartCount, false);
 		return "redirect:cart";
 	}
 
@@ -266,5 +229,4 @@ public class WebAppController {
 		this.sessionUser.getTelemetryClient().trackPageView(pageViewTelemetry);
 		return "home";
 	}
-
 }

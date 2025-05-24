@@ -1,9 +1,5 @@
 package com.chtrembl.petstoreapp.service;
 
-/**
- * Implementation for service calls to the APIM/AKS
- */
-
 import com.chtrembl.petstoreapp.model.Category;
 import com.chtrembl.petstoreapp.model.ContainerEnvironment;
 import com.chtrembl.petstoreapp.model.Order;
@@ -15,12 +11,12 @@ import com.chtrembl.petstoreapp.model.WebRequest;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -35,6 +31,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PetStoreServiceImpl implements PetStoreService {
 	private static final Logger logger = LoggerFactory.getLogger(PetStoreServiceImpl.class);
 
@@ -45,12 +42,6 @@ public class PetStoreServiceImpl implements PetStoreService {
 	private WebClient petServiceWebClient = null;
 	private WebClient productServiceWebClient = null;
 	private WebClient orderServiceWebClient = null;
-
-	public PetStoreServiceImpl(User sessionUser, ContainerEnvironment containerEnvironment, WebRequest webRequest) {
-		this.sessionUser = sessionUser;
-		this.containerEnvironment = containerEnvironment;
-		this.webRequest = webRequest;
-	}
 
 	@PostConstruct
 	public void initialize() {
