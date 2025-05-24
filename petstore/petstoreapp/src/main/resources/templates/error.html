@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Something went wrong</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link href="/content/bootstrap-4.5.0-dist/css/bootstrap.css" rel="stylesheet">
+    <link href="/content/petstoreapp.css" rel="stylesheet">
+    <link href="/content/cookieconsent/cookieconsent.min.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="container text-center mt-5 mb-5">
+    <h1 class="display-4 text-danger">Oops! Something went wrong.</h1>
+    <p class="lead" th:text="'Error code: ' + ${status}"></p>
+    <p th:text="${error}"></p>
+    <p th:text="${message}"></p>
+    <a class="btn btn-primary mt-4" href="/">Return to Home Page</a>
+</div>
+</body>
+</html>
