@@ -30,6 +30,11 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Map;
 
+/**
+ * Controller for the PetStore web application.
+ * Handles requests for various pages and manages user sessions.
+ */
+
 @Controller
 @RequiredArgsConstructor
 public class WebAppController {
@@ -104,90 +109,109 @@ public class WebAppController {
 
 	@GetMapping(value = { "/dogbreeds", "/catbreeds", "/fishbreeds" })
 	public String breeds(Model model, OAuth2AuthenticationToken token, HttpServletRequest request,
-			@RequestParam(name = "category") String category) throws URISyntaxException {
-
+						 @RequestParam(name = "category") String category) throws URISyntaxException {
 		if (!"Dog".equals(category) && !"Cat".equals(category) && !"Fish".equals(category)) {
 			return "home";
 		}
-		logger.info(String.format("PetStoreApp /breeds requested for %s, routing to breeds view...", category));
-
-		model.addAttribute("pets", this.petStoreService.getPets(category));
+		try {
+			final Collection<Pet> pets = this.petStoreService.getPets(category);
+			model.addAttribute("pets", pets);
+		} catch (Exception ex) {
+			logger.error("Error loading pets from service: ", ex);
+			model.addAttribute("error", "Sorry, we couldn’t load pet breeds.");
+			model.addAttribute("stacktrace", getStackTrace(ex));
+		}
 		return "breeds";
 	}
 
+
 	@GetMapping(value = "/breeddetails")
 	public String breedeetails(Model model, OAuth2AuthenticationToken token, HttpServletRequest request,
-			@RequestParam(name = "category") String category, @RequestParam(name = "id") int id)
-			throws URISyntaxException {
+							   @RequestParam(name = "category") String category,
+							   @RequestParam(name = "id") int id) throws URISyntaxException {
 
 		if (!"Dog".equals(category) && !"Cat".equals(category) && !"Fish".equals(category)) {
 			return "home";
 		}
 
-		if (null == this.sessionUser.getPets()) {
-			this.petStoreService.getPets(category);
-		}
-
-		Pet pet = null;
-
 		try {
-			pet = this.sessionUser.getPets().get(id - 1);
-		} catch (Exception npe) {
-			this.sessionUser.getTelemetryClient().trackException(npe);
-			pet = new Pet();
+			if (this.sessionUser.getPets() == null) {
+				this.petStoreService.getPets(category);
+			}
+
+			Pet pet = this.sessionUser.getPets().get(id - 1);
+			logger.info(String.format("PetStoreApp /breeddetails requested for %s, routing to dogbreeddetails view...",
+					pet.getName()));
+			model.addAttribute("pet", pet);
+
+		} catch (Exception ex) {
+			logger.error("Error loading pet details: ", ex);
+			model.addAttribute("error", "Sorry, we couldn’t load pet details.");
+			model.addAttribute("stacktrace", getStackTrace(ex));
 		}
-
-		logger.info(String.format("PetStoreApp /breeddetails requested for %s, routing to dogbreeddetails view...",
-				pet.getName()));
-
-		model.addAttribute("pet", pet);
 
 		return "breeddetails";
 	}
 
 	@GetMapping(value = "/products")
 	public String products(Model model, OAuth2AuthenticationToken token, HttpServletRequest request,
-			@RequestParam(name = "category") String category, @RequestParam(name = "id") int id)
-			throws URISyntaxException {
+						   @RequestParam(name = "category") String category,
+						   @RequestParam(name = "id") int id) throws URISyntaxException {
 
 		if (!"Toy".equals(category) && !"Food".equals(category)) {
 			return "home";
 		}
-		logger.info(String.format("PetStoreApp /products requested for %s, routing to products view...", category));
 
-		Collection<Pet> pets = this.petStoreService.getPets(category);
+		try {
+			logger.info(String.format("PetStoreApp /products requested for %s, routing to products view...", category));
 
-		Pet pet = new Pet();
+			Collection<Pet> pets = this.petStoreService.getPets(category);
+			Pet pet = new Pet();
+			if (pets != null) {
+				pet = this.sessionUser.getPets().get(id - 1);
+			}
 
-		if (pets != null) {
-			pet = this.sessionUser.getPets().get(id - 1);
+			model.addAttribute("products",
+					this.petStoreService.getProducts(pet.getCategory().getName() + " " + category, pet.getTags()));
+		} catch (Exception ex) {
+			logger.error("Error loading products: ", ex);
+			model.addAttribute("error", "Sorry, we couldn’t load products.");
+			model.addAttribute("stacktrace", getStackTrace(ex));
 		}
 
-		model.addAttribute("products",
-				this.petStoreService.getProducts(pet.getCategory().getName() + " " + category, pet.getTags()));
 		return "products";
 	}
 
 	@GetMapping(value = "/cart")
 	public String cart(Model model, OAuth2AuthenticationToken token, HttpServletRequest request) {
-		Order order = this.petStoreService.retrieveOrder(this.sessionUser.getSessionId());
-		model.addAttribute("order", order);
-		int cartSize = 0;
-		if (order != null && order.getProducts() != null && !order.isComplete()) {
-			cartSize = order.getProducts().size();
+		try {
+			Order order = this.petStoreService.retrieveOrder(this.sessionUser.getSessionId());
+			model.addAttribute("order", order);
+
+			int cartSize = 0;
+			if (order != null && order.getProducts() != null && !order.isComplete()) {
+				cartSize = order.getProducts().size();
+			}
+			this.sessionUser.setCartCount(cartSize);
+			model.addAttribute("cartSize", this.sessionUser.getCartCount());
+
+			if (token != null) {
+				model.addAttribute("userLoggedIn", true);
+				model.addAttribute("email", this.sessionUser.getEmail());
+			}
+
+		} catch (Exception ex) {
+			logger.error("Error loading cart: ", ex);
+			model.addAttribute("error", "Sorry, we couldn’t load your cart.");
+			model.addAttribute("stacktrace", getStackTrace(ex));
 		}
-		this.sessionUser.setCartCount(cartSize);
-		model.addAttribute("cartSize", this.sessionUser.getCartCount());
-		if (token != null) {
-			model.addAttribute("userLoggedIn", true);
-			model.addAttribute("email", this.sessionUser.getEmail());
-		}
+
 		return "cart";
 	}
 
 	@PostMapping(value = "/updatecart")
-	public String updatecart(Model model, OAuth2AuthenticationToken token, HttpServletRequest request,
-			@RequestParam Map<String, String> params) {
+	public String updateCart(Model model, OAuth2AuthenticationToken token, HttpServletRequest request,
+							 @RequestParam Map<String, String> params) {
 		int cartCount = 1;
 
 		String operator = params.get("operator");
@@ -202,7 +226,7 @@ public class WebAppController {
 	}
 
 	@PostMapping(value = "/completecart")
-	public String updatecart(Model model, OAuth2AuthenticationToken token, HttpServletRequest request) {
+	public String updateCart(Model model, OAuth2AuthenticationToken token, HttpServletRequest request) {
 		if (token != null) {
 			this.petStoreService.updateOrder(0, 0, true);
 		}
@@ -217,16 +241,38 @@ public class WebAppController {
 		return "claims";
 	}
 
+	@GetMapping("/fail")
+	public String fail() {
+		throw new RuntimeException("Test 500 error");
+	}
 
-	@GetMapping(value = "/*")
+	@GetMapping(value = {"/", "/home.htm*", "/index.htm*"})
 	public String landing(Model model, OAuth2AuthenticationToken token, HttpServletRequest request)
 			throws URISyntaxException {
-		logger.info(String.format("PetStoreApp %s requested and %s is being routed to home view session %s",
-				request.getRequestURI(), this.sessionUser.getName(), this.sessionUser.getSessionId()));
-		PageViewTelemetry pageViewTelemetry = new PageViewTelemetry();
-		pageViewTelemetry.setUrl(new URI(request.getRequestURL().toString()));
-		pageViewTelemetry.setName("landing");
-		this.sessionUser.getTelemetryClient().trackPageView(pageViewTelemetry);
 		return "home";
+	}
+
+	private String getStackTrace(Throwable throwable) {
+		StringBuilder sb = new StringBuilder();
+		appendStackTrace(sb, throwable, "");
+		return sb.toString();
+	}
+
+	private void appendStackTrace(StringBuilder sb, Throwable throwable, String prefix) {
+		if (throwable == null) return;
+
+		sb.append(prefix).append(throwable.toString()).append("\n");
+		for (StackTraceElement element : throwable.getStackTrace()) {
+			sb.append("\tat ").append(element).append("\n");
+		}
+
+		for (Throwable suppressed : throwable.getSuppressed()) {
+			appendStackTrace(sb, suppressed, "Suppressed: ");
+		}
+
+		Throwable cause = throwable.getCause();
+		if (cause != null && cause != throwable) {
+			appendStackTrace(sb, cause, "Caused by: ");
+		}
 	}
 }
