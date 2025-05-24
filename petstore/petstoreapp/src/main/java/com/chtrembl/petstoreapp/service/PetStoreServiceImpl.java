@@ -72,31 +72,21 @@ public class PetStoreServiceImpl implements PetStoreService {
 					.retrieve()
 					.bodyToMono(new ParameterizedTypeReference<List<Pet>>() {
 					}).block();
-
-			// use this for look up on details page, intentionally avoiding spring cache to
-			// ensure service calls are made each for each browser session
-			// to show Telemetry with APIM requests (normally this would be cached in a real
-			// world production scenario)
 			this.sessionUser.setPets(pets);
 
-			// filter this specific request per category
 			pets = pets.stream().filter(pet -> category.equals(pet.getCategory().getName()))
 					.collect(Collectors.toList());
 			return pets;
 		} catch (WebClientException wce) {
 			this.sessionUser.getTelemetryClient().trackException(wce);
 			this.sessionUser.getTelemetryClient().trackEvent(
-					String.format("PetStoreApp %s received %s, container host: %s", this.sessionUser.getName(),
-							wce.getMessage(), this.containerEnvironment.getContainerHostName()));
-			Pet pet = new Pet();
-			pet.setName(wce.getMessage());
-			pet.setPhotoURL("");
-			pet.setCategory(new Category());
-			pet.setId((long) 0);
-			pets.add(pet);
+					String.format("PetStoreApp %s received %s, container host: %s",
+							this.sessionUser.getName(),
+							wce.getMessage(),
+							this.containerEnvironment.getContainerHostName())
+			);
+			throw new IllegalStateException("Unable to retrieve pets from pet service", wce);
 		} catch (IllegalArgumentException iae) {
-			// little hack to visually show the error message within our Azure Pet Store
-			// Reference Guide (Academic Tutorial)
 			Pet pet = new Pet();
 			pet.setName("petstore.service.url:${PETSTOREPETSERVICE_URL} needs to be enabled for this service to work"
 					+ iae.getMessage());
@@ -124,13 +114,8 @@ public class PetStoreServiceImpl implements PetStoreService {
 					.bodyToMono(new ParameterizedTypeReference<List<Product>>() {
 					}).block();
 
-			// use this for look up on details page, intentionally avoiding spring cache to
-			// ensure service calls are made each for each browser session
-			// to show Telemetry with APIM requests (normally this would be cached in a real
-			// world production scenario)
 			this.sessionUser.setProducts(products);
 
-			// filter this specific request per category
 			if (tags.stream().anyMatch(t -> t.getName().equals("large"))) {
 				products = products.stream().filter(product -> category.equals(product.getCategory().getName())
 						&& product.getTags().toString().contains("large")).collect(Collectors.toList());
@@ -140,30 +125,16 @@ public class PetStoreServiceImpl implements PetStoreService {
 						&& product.getTags().toString().contains("small")).collect(Collectors.toList());
 			}
 			return products;
-		} catch (
-
-		WebClientException wce) {
-			// little hack to visually show the error message within our Azure Pet Store
-			// Reference Guide (Academic Tutorial)
-			Product product = new Product();
-			product.setName(wce.getMessage());
-			product.setPhotoURL("");
-			product.setCategory(new Category());
-			product.setId((long) 0);
-			products.add(product);
-		} catch (IllegalArgumentException iae) {
-			// little hack to visually show the error message within our Azure Pet Store
-			// Reference Guide (Academic Tutorial)
-			Product product = new Product();
-			product.setName(
-					"petstore.service.url:${PETSTOREPRODUCTSERVICE_URL} needs to be enabled for this service to work"
-							+ iae.getMessage());
-			product.setPhotoURL("");
-			product.setCategory(new Category());
-			product.setId((long) 0);
-			products.add(product);
+		} catch (WebClientException | IllegalArgumentException wce) {
+			this.sessionUser.getTelemetryClient().trackException(wce);
+			this.sessionUser.getTelemetryClient().trackEvent(
+					String.format("PetStoreApp %s received %s, container host: %s",
+							this.sessionUser.getName(),
+							wce.getMessage(),
+							this.containerEnvironment.getContainerHostName())
+			);
+			throw new IllegalStateException("Unable to retrieve products from product service", wce);
 		}
-		return products;
 	}
 
 	@Override
@@ -204,9 +175,9 @@ public class PetStoreServiceImpl implements PetStoreService {
 					.header("Cache-Control", "no-cache")
 					.retrieve()
 					.bodyToMono(Order.class).block();
-
 		} catch (Exception e) {
-			logger.warn(e.getMessage());
+			logger.error("Unable to retrieve order from order service", e);
+			throw new IllegalStateException("Unable to retrieve order from order service", e);
 		}
 	}
 
@@ -231,7 +202,8 @@ public class PetStoreServiceImpl implements PetStoreService {
 					.bodyToMono(new ParameterizedTypeReference<Order>() {
 					}).block();
 		} catch (Exception e) {
-			logger.warn(e.getMessage());
+			logger.error("Unable to retrieve order from order service", e);
+			throw new IllegalStateException("Unable to retrieve order from order service", e);
 		}
 		return order;
 	}
