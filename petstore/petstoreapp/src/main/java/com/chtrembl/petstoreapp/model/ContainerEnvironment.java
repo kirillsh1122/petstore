@@ -78,18 +78,6 @@ public class ContainerEnvironment implements Serializable {
 	@Value("#{T(java.util.Arrays).asList('${petstore.logging.additional-headers-to-send:}')}") 
 	private List<String> additionalHeadersToSend;
 
-	@Value("${petstore.signalr.negotiation-url:}")
-	private String signalRNegotiationURL;
-
-	@Value("${petstore.signalr.service-url:}")
-	private String signalRServiceURL;
-	
-	@Value("${petstore.signalr.key:}")
-	private String signalRKey;
-
-	private WebClient signalRWebClient = null;
-
-	public static String CURRENT_USERS_HUB = "currentUsers";
 
 	@Autowired
 	private CacheManager currentUsersCacheManager;
@@ -98,11 +86,6 @@ public class ContainerEnvironment implements Serializable {
 	private void initialize() throws JoranException {
 		// LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 
-		if (StringUtils.isNoneEmpty(this.getSignalRKey()) && StringUtils.isNoneEmpty(this.getSignalRNegotiationURL())
-				&& StringUtils.isNoneEmpty(this.getSignalRServiceURL())) {
-			this.signalRWebClient = WebClient.builder().baseUrl(this.getSignalRServiceURL()).build();
-		}
-		
 		try {
 			this.setContainerHostName(
 					InetAddress.getLocalHost().getHostAddress() + "/" + InetAddress.getLocalHost().getHostName());
@@ -130,27 +113,6 @@ public class ContainerEnvironment implements Serializable {
 		// context.putProperty("containerHostName", this.getContainerHostName());
 	}
 
-	public String generateJwt(String audience, String userId) {
-		SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
-
-		long nowMillis = System.currentTimeMillis();
-		Date now = new Date(nowMillis);
-
-		long expMillis = nowMillis + (30 * 30 * 1000);
-		Date exp = new Date(expMillis);
-
-		byte[] apiKeySecretBytes = this.getSignalRKey().getBytes(StandardCharsets.UTF_8);
-		Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
-
-		JwtBuilder builder = Jwts.builder().setAudience(audience).setIssuedAt(now).setExpiration(exp)
-				.signWith(signingKey);
-
-		if (userId != null) {
-			builder.claim("nameid", userId);
-		}
-
-		return builder.compact();
-	}
 
 	public String getContainerHostName() {
 		return containerHostName;
@@ -239,40 +201,4 @@ public class ContainerEnvironment implements Serializable {
 		return additionalHeadersToSend;
 	}
 
-	public String getSignalRNegotiationURL() {
-		return signalRNegotiationURL;
-	}
-
-	public String getSignalRServiceURL() {
-		return signalRServiceURL;
-	}
-
-	public String getSignalRKey() {
-		return signalRKey;
-	}
-
-	@Scheduled(fixedRateString = "${petstore.signalr.update.fixedRate:60000}")
-	public void sendCurrentUsers() {
-		if (this.signalRWebClient == null) {
-			return;
-		}
-		String hubUri = "/api/v1/hubs/" + ContainerEnvironment.CURRENT_USERS_HUB;
-		String hubUrl = getSignalRServiceURL() + hubUri;
-		String accessKey = generateJwt(hubUrl, null);
-
-		CaffeineCache caffeineCache = (CaffeineCache) this.currentUsersCacheManager
-				.getCache(ContainerEnvironment.CURRENT_USERS_HUB);
-		com.github.benmanes.caffeine.cache.Cache<Object, Object> nativeCache = caffeineCache.getNativeCache();
-		int size = nativeCache.asMap().keySet().size();
-
-		logger.info("@Scheduled sending current users of size " + size);
-
-		this.signalRWebClient.post().uri(hubUri)
-				.body(BodyInserters.fromPublisher(
-						Mono.just(new SignalRMessage("currentUsersUpdated", new Object[] { size })),
-						SignalRMessage.class))
-				.accept(MediaType.APPLICATION_JSON).header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-				.header("Cache-Control", "no-cache").header("Authorization", "Bearer " + accessKey).retrieve()
-				.bodyToMono(Object.class).block();
-	}
 }

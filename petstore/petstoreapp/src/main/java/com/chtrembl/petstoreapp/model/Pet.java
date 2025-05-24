@@ -148,7 +148,7 @@ public class Pet implements Serializable {
 	}
 
 	@Override
-	public boolean equals(java.lang.Object o) {
+	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
 		}
@@ -181,7 +181,7 @@ public class Pet implements Serializable {
 		return sb.toString();
 	}
 
-	private String toIndentedString(java.lang.Object o) {
+	private String toIndentedString(Object o) {
 		if (o == null) {
 			return "null";
 		}

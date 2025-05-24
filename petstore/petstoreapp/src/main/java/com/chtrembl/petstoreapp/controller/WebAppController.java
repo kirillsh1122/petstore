@@ -31,9 +31,7 @@ import com.chtrembl.petstoreapp.model.ContainerEnvironment;
 import com.chtrembl.petstoreapp.model.Order;
 import com.chtrembl.petstoreapp.model.Pet;
 import com.chtrembl.petstoreapp.model.User;
-import com.chtrembl.petstoreapp.model.WebPages;
 import com.chtrembl.petstoreapp.service.PetStoreService;
-import com.chtrembl.petstoreapp.service.SearchService;
 import com.microsoft.applicationinsights.telemetry.PageViewTelemetry;
 import com.nimbusds.jose.shaded.json.JSONArray;
 
@@ -51,8 +49,6 @@ public class WebAppController {
 	@Autowired
 	private PetStoreService petStoreService;
 
-	@Autowired
-	private SearchService searchService;
 
 	@Autowired
 	private User sessionUser;
@@ -60,11 +56,13 @@ public class WebAppController {
 	@Autowired
 	private CacheManager currentUsersCacheManager;
 
+	private static final String CURRENT_USERS_HUB = "currentUsers";
+
 	@ModelAttribute
 	public void setModel(HttpServletRequest request, Model model, OAuth2AuthenticationToken token) {
 
 		CaffeineCache caffeineCache = (CaffeineCache) this.currentUsersCacheManager
-				.getCache(ContainerEnvironment.CURRENT_USERS_HUB);
+				.getCache(CURRENT_USERS_HUB);
 		com.github.benmanes.caffeine.cache.Cache<Object, Object> nativeCache = caffeineCache.getNativeCache();
 
 		// this is used for n tier correlated Telemetry. Keep the same one for anonymous
@@ -74,7 +72,6 @@ public class WebAppController {
 			this.sessionUser.setSessionId(sessionId);
 			// put session in TTL cache so its there after initial login
 			caffeineCache.put(this.sessionUser.getSessionId(), this.sessionUser.getName());
-			this.containerEnvironment.sendCurrentUsers();
 		}
 
 		// put session in TTL cache to refresh TTL
@@ -116,7 +113,6 @@ public class WebAppController {
 		model.addAttribute("cartSize", this.sessionUser.getCartCount());
 
 		model.addAttribute("currentUsersOnSite", nativeCache.asMap().keySet().size());
-		model.addAttribute("signalRNegotiationURL", this.containerEnvironment.getSignalRNegotiationURL());
 
 		MDC.put("session_Id", this.sessionUser.getSessionId());
 	}
@@ -258,35 +254,6 @@ public class WebAppController {
 		return "claims";
 	}
 
-	@GetMapping(value = "/slowness")
-	public String generateappinsightsslowness(Model model, OAuth2AuthenticationToken token, HttpServletRequest request)
-			throws URISyntaxException, InterruptedException {
-		logger.info("PetStoreApp simulating slowness, routing to home view...");
-
-		PageViewTelemetry pageViewTelemetry = new PageViewTelemetry();
-		pageViewTelemetry.setUrl(new URI(request.getRequestURL().toString()));
-		pageViewTelemetry.setName("slow operation");
-
-		// 30s delay
-		Thread.sleep(30000);
-
-		this.sessionUser.getTelemetryClient().trackPageView(pageViewTelemetry);
-
-		return "slowness";
-	}
-
-	@GetMapping(value = "/exception")
-	public String exception(Model model, OAuth2AuthenticationToken token, HttpServletRequest request)
-			throws URISyntaxException, InterruptedException {
-
-		NullPointerException npe = new NullPointerException();
-
-		logger.info("PetStoreApp simulating NullPointerException, routing to home view..." + npe.getStackTrace());
-
-		this.sessionUser.getTelemetryClient().trackException(npe);
-
-		return "exception";
-	}
 
 	@GetMapping(value = "/*")
 	public String landing(Model model, OAuth2AuthenticationToken token, HttpServletRequest request)
@@ -300,17 +267,4 @@ public class WebAppController {
 		return "home";
 	}
 
-	@GetMapping(value = "/bingSearch")
-	public String bingSearch(Model model) throws URISyntaxException {
-		logger.info(String.format("PetStoreApp /bingsearch requested for %s, routing to bingSearch view...",
-				this.sessionUser.getName()));
-		String companies[] = { "Chewy", "PetCo", "PetSmart", "Walmart" };
-		List<String> companiesList = Arrays.asList(companies);
-		List<WebPages> webpages = new ArrayList<>();
-		companiesList.forEach(company -> webpages.add(this.searchService.bingSearch(company)));
-		model.addAttribute("companies", companiesList);
-		model.addAttribute("webpages", webpages);
-
-		return "bingSearch";
-	}
 }

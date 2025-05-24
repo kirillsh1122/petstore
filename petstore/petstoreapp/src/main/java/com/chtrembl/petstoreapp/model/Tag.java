@@ -1,9 +1,9 @@
 package com.chtrembl.petstoreapp.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 import java.util.Objects;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @SuppressWarnings("serial")
 public class Tag implements Serializable {
@@ -40,7 +40,7 @@ public class Tag implements Serializable {
 	}
 
 	@Override
-	public boolean equals(java.lang.Object o) {
+	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
 		}
@@ -67,7 +67,7 @@ public class Tag implements Serializable {
 		return sb.toString();
 	}
 
-	private String toIndentedString(java.lang.Object o) {
+	private String toIndentedString(Object o) {
 		if (o == null) {
 			return "null";
 		}
