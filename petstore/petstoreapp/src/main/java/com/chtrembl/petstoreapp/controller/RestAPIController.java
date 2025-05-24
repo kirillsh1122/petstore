@@ -1,9 +1,6 @@
 package com.chtrembl.petstoreapp.controller;
 
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.chtrembl.petstoreapp.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.ui.Model;
@@ -11,13 +8,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.chtrembl.petstoreapp.model.User;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
 
 /**
- * REST controller to facilitate REST calls such as session keep alives
- * (progressive web apps)
- *
+ * Rest API controller for the PetStore application.
+ * Provides endpoints for contact information and session introspection.
  */
+
 @RestController
 public class RestAPIController {
 
