@@ -1,7 +1,3 @@
-bing:
-  search:
-    subscription:
-      key: ${BING_SEARCH_SUBSCRIPTION_KEY:}
 petstore:
   service:
     pet:
@@ -13,12 +9,6 @@ petstore:
   logging:
     additional-headers-to-log: ${PETSTORE_ADDITIONAL_HEADERS_TO_LOG:}
     additional-headers-to-send: ${PETSTORE_ADDITIONAL_HEADERS_TO_SEND:}
-  signalR:
-    negotiation-url: ${SIGNALR_NEGOTIATION_URL:}
-    service-url: ${SIGNALR_SERVICE_URL:}
-    key: ${SIGNALR_SERVICE_KEY:}
-    update:
-      fixedRate: ${SIGNALR_UPDATE_FIXEDRATE:60000}
 server:
   port: ${PETSTOREAPP_SERVER_PORT:8080}
 management:
