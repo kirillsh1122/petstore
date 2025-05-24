@@ -1,18 +1,15 @@
 package com.chtrembl.petstore.order.model;
 
-import java.io.Serializable;
-import java.util.Objects;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 import org.springframework.validation.annotation.Validated;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import io.swagger.annotations.ApiModelProperty;
+import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Category
  */
-@SuppressWarnings("serial")
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2021-12-23T15:16:30.446-05:00")
 

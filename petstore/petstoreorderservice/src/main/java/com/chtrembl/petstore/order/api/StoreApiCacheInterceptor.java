@@ -6,7 +6,6 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.interceptor.CacheInterceptor;
 
-@SuppressWarnings("serial")
 public class StoreApiCacheInterceptor extends CacheInterceptor {
 	@Autowired
 	@Qualifier(value = "cacheManager")

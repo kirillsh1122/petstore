@@ -2,7 +2,6 @@ package com.chtrembl.petstore.product.model;
 
 import java.io.Serializable;
 
-@SuppressWarnings("serial")
 public class Version implements Serializable {
 	private String version;
 	private String date;
