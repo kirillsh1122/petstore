@@ -90,6 +90,82 @@ figure {
 	color: #3C7BB7;
 }
 
+/* Hero button styling */
+.hero-btn {
+	background-color: white;
+	border: 2px solid #007bff;
+	color: #007bff;
+	transition: all 0.3s ease;
+}
+
+.hero-btn:hover {
+	background-color: #007bff;
+	border-color: #007bff;
+	color: white;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+/* Modern home page styling */
+.hero-section {
+	background: transparent;
+	min-height: auto;
+	display: flex;
+	align-items: center;
+	padding: 2rem 0 !important;
+}
+
+.hero-content h1 {
+	line-height: 1.2;
+}
+
+.banner-modern {
+	max-width: 100%;
+	transition: transform 0.3s ease;
+	background: transparent;
+}
+
+.hero-image {
+	background: transparent;
+}
+
+.banner-modern:hover {
+	transform: scale(1.02);
+}
+
+.features-section {
+	padding: 4rem 0;
+}
+
+.feature-card {
+	padding: 2rem 1rem;
+	transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+	transform: translateY(-5px);
+}
+
+.feature-icon {
+	transition: transform 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+	transform: scale(1.1);
+}
+
+@media (max-width: 991px) {
+	.hero-section {
+		min-height: auto;
+		padding: 3rem 0;
+	}
+
+	.hero-content {
+		text-align: center;
+		margin-bottom: 2rem;
+	}
+}
+
 /* Claims page styling */
 .claim-key {
 	font-size: 0.875rem;
