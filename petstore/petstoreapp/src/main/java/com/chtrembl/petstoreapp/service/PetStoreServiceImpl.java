@@ -11,6 +11,7 @@ import com.chtrembl.petstoreapp.model.WebRequest;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -85,7 +85,7 @@ public class PetStoreServiceImpl implements PetStoreService {
 							wce.getMessage(),
 							this.containerEnvironment.getContainerHostName())
 			);
-			throw new IllegalStateException("Unable to retrieve pets from pet service", wce);
+			throw new IllegalStateException("Unable to retrieve pets from the PetStorePetService", wce);
 		} catch (IllegalArgumentException iae) {
 			Pet pet = new Pet();
 			pet.setName("petstore.service.url:${PETSTOREPETSERVICE_URL} needs to be enabled for this service to work"
@@ -100,7 +100,7 @@ public class PetStoreServiceImpl implements PetStoreService {
 
 	@Override
 	public Collection<Product> getProducts(String category, List<Tag> tags) {
-		List<Product> products = new ArrayList<>();
+		List<Product> products;
 
 		try {
 			Consumer<HttpHeaders> consumer = it -> it.addAll(this.webRequest.getHeaders());
@@ -141,7 +141,7 @@ public class PetStoreServiceImpl implements PetStoreService {
 	public void updateOrder(long productId, int quantity, boolean completeOrder) {
 		this.sessionUser.getTelemetryClient()
 				.trackEvent(String.format(
-						"PetStoreApp user %s is requesting to update an order with the PetStoreOrderService",
+						"PetStoreApp user %s is trying to update an order",
 						this.sessionUser.getName()), this.sessionUser.getCustomEventProperties(), null);
 
 		try {
@@ -153,7 +153,7 @@ public class PetStoreServiceImpl implements PetStoreService {
 			if (completeOrder) {
 				updatedOrder.setComplete(true);
 			} else {
-				List<Product> products = new ArrayList<Product>();
+				List<Product> products = new ArrayList<>();
 				Product product = new Product();
 				product.setId(Long.valueOf(productId));
 				product.setQuantity(quantity);
@@ -185,7 +185,7 @@ public class PetStoreServiceImpl implements PetStoreService {
 	public Order retrieveOrder(String orderId) {
 		this.sessionUser.getTelemetryClient()
 				.trackEvent(String.format(
-						"PetStoreApp user %s is requesting to retrieve an from with the PetStoreOrderService",
+						"PetStoreApp user %s is requesting to retrieve an order from the PetStoreOrderService",
 						this.sessionUser.getName()), this.sessionUser.getCustomEventProperties(), null);
 
 		Order order = null;

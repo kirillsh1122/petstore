@@ -1,6 +1,7 @@
 package com.chtrembl.petstoreapp.model;
 
-import com.microsoft.applicationinsights.TelemetryClient;
+import com.chtrembl.petstoreapp.service.TelemetryClient;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;

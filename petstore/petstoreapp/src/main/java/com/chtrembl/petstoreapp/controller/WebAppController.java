@@ -6,7 +6,8 @@ import com.chtrembl.petstoreapp.model.Pet;
 import com.chtrembl.petstoreapp.model.User;
 import com.chtrembl.petstoreapp.service.PetStoreService;
 import com.microsoft.applicationinsights.telemetry.PageViewTelemetry;
-import com.nimbusds.jose.shaded.json.JSONArray;
+import com.nimbusds.jose.shaded.gson.JsonArray;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -24,11 +25,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.RequestContextHolder;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Controller for the PetStore web application.
@@ -65,7 +66,7 @@ public class WebAppController {
 			final OAuth2User user = token.getPrincipal();
 
 			try {
-				this.sessionUser.setEmail((String) ((JSONArray) user.getAttribute("emails")).get(0));
+				this.sessionUser.setEmail((String) ((JsonArray) Objects.requireNonNull(user.getAttribute("emails"))).get(0).getAsString());
 			} catch (Exception e) {
 				logger.warn(String.format("PetStoreApp  %s logged in, however cannot get email associated: %s",
 						this.sessionUser.getName(), e.getMessage()));
@@ -118,12 +119,11 @@ public class WebAppController {
 			model.addAttribute("pets", pets);
 		} catch (Exception ex) {
 			logger.error("Error loading pets from service: ", ex);
-			model.addAttribute("error", "Sorry, we couldn’t load pet breeds.");
+			model.addAttribute("error", "Sorry, we couldn't load pet breeds.");
 			model.addAttribute("stacktrace", getStackTrace(ex));
 		}
 		return "breeds";
 	}
-
 
 	@GetMapping(value = "/breeddetails")
 	public String breedeetails(Model model, OAuth2AuthenticationToken token, HttpServletRequest request,
@@ -146,7 +146,7 @@ public class WebAppController {
 
 		} catch (Exception ex) {
 			logger.error("Error loading pet details: ", ex);
-			model.addAttribute("error", "Sorry, we couldn’t load pet details.");
+			model.addAttribute("error", "Sorry, we couldn't load pet details.");
 			model.addAttribute("stacktrace", getStackTrace(ex));
 		}
 
@@ -175,7 +175,7 @@ public class WebAppController {
 					this.petStoreService.getProducts(pet.getCategory().getName() + " " + category, pet.getTags()));
 		} catch (Exception ex) {
 			logger.error("Error loading products: ", ex);
-			model.addAttribute("error", "Sorry, we couldn’t load products.");
+			model.addAttribute("error", "Sorry, we couldn't load products.");
 			model.addAttribute("stacktrace", getStackTrace(ex));
 		}
 
@@ -202,7 +202,7 @@ public class WebAppController {
 
 		} catch (Exception ex) {
 			logger.error("Error loading cart: ", ex);
-			model.addAttribute("error", "Sorry, we couldn’t load your cart.");
+			model.addAttribute("error", "Sorry, we couldn't load your cart.");
 			model.addAttribute("stacktrace", getStackTrace(ex));
 		}
 

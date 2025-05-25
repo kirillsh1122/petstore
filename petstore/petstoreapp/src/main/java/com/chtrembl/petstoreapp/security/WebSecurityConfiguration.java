@@ -5,65 +5,71 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.util.StringUtils;
 
+@Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfiguration {
 	private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfiguration.class);
 
-	private final AADB2COidcLoginConfigurerWrapper aadB2COidcLoginConfigurerWrapper;
-	private final ContainerEnvironment containeEnvironment;
+    private final ContainerEnvironment containerEnvironment;
 
 	@Value("${petstore.security.enabled:true}")
 	private boolean securityEnabled;
 
-	@Override
-	public void configure(WebSecurity web) throws Exception {
-		if (aadB2COidcLoginConfigurerWrapper != null &&
-				aadB2COidcLoginConfigurerWrapper.getConfigurer() != null) {
-			web.ignoring().antMatchers("/content/**");
-			web.ignoring().antMatchers("/.well-known/**");
-		}
-	}
+    // Прямая проверка Azure B2C properties
+    @Value("${spring.cloud.azure.active-directory.b2c.base-uri:}")
+    private String azureB2cBaseUri;
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+    @Value("${spring.cloud.azure.active-directory.b2c.credential.client-id:}")
+    private String azureB2cClientId;
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		if (!securityEnabled) {
-			http.csrf().disable()
-					.authorizeRequests().anyRequest().permitAll();
-			containeEnvironment.setSecurityEnabled(false);
+            http.csrf(AbstractHttpConfigurer::disable)
+                    .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
+            containerEnvironment.setSecurityEnabled(false);
 			logger.warn("Security is DISABLED via petstore.security.enabled = false");
-			return;
+            return http.build();
 		}
 
-		if (aadB2COidcLoginConfigurerWrapper != null &&
-				aadB2COidcLoginConfigurerWrapper.getConfigurer() != null) {
+        // Проверяем Azure B2C конфигурацию напрямую
+        boolean azureB2cConfigured = StringUtils.hasText(azureB2cBaseUri) &&
+                StringUtils.hasText(azureB2cClientId);
 
-			http.csrf()
-					.and()
-					.authorizeRequests().antMatchers("/").permitAll()
-					.antMatchers("/*breed*").permitAll()
-					.antMatchers("/*product*").permitAll()
-					.antMatchers("/*cart*").permitAll()
-					.antMatchers("/api/contactus").permitAll()
-					.antMatchers("/login*").permitAll()
-					.anyRequest().authenticated()
-					.and()
-					.apply(aadB2COidcLoginConfigurerWrapper.getConfigurer())
-					.and()
-					.oauth2Login().loginPage("/login");
+        if (azureB2cConfigured) {
+            http.csrf(csrf -> csrf.ignoringRequestMatchers("/content/**", "/.well-known/**"))
+                    .authorizeHttpRequests(authz -> authz
+                            .requestMatchers("/").permitAll()
+                            .requestMatchers("/*breed*").permitAll()
+                            .requestMatchers("/*product*").permitAll()
+                            .requestMatchers("/*cart*").permitAll()
+                            .requestMatchers("/api/contactus").permitAll()
+                            .requestMatchers("/login*").permitAll()
+                            .requestMatchers("/content/**").permitAll()
+                            .requestMatchers("/.well-known/**").permitAll()
+                            .anyRequest().authenticated())
+                    .oauth2Login(oauth2 -> oauth2
+                            .loginPage("/login")
+                            .defaultSuccessUrl("/", true));
 
-			containeEnvironment.setSecurityEnabled(true);
-			logger.info("Security is ENABLED using Azure B2C configuration.");
+            containerEnvironment.setSecurityEnabled(true);
+            logger.info("Security is ENABLED using Azure B2C auto-configuration.");
 		} else {
-			http.csrf().disable()
-					.authorizeRequests().anyRequest().permitAll();
-			containeEnvironment.setSecurityEnabled(false);
+            http.csrf(AbstractHttpConfigurer::disable)
+                    .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
+            containerEnvironment.setSecurityEnabled(false);
 			logger.warn("Security ENABLED in config but Azure B2C not configured — fallback to DISABLED");
 		}
+
+        return http.build();
 	}
 }

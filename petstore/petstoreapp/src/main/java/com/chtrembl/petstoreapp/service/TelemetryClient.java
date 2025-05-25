@@ -1,136 +1,130 @@
 package com.chtrembl.petstoreapp.service;
 
-import com.microsoft.applicationinsights.telemetry.Duration;
-import com.microsoft.applicationinsights.telemetry.EventTelemetry;
-import com.microsoft.applicationinsights.telemetry.ExceptionTelemetry;
-import com.microsoft.applicationinsights.telemetry.MetricTelemetry;
-import com.microsoft.applicationinsights.telemetry.PageViewTelemetry;
-import com.microsoft.applicationinsights.telemetry.RemoteDependencyTelemetry;
-import com.microsoft.applicationinsights.telemetry.RequestTelemetry;
-import com.microsoft.applicationinsights.telemetry.SessionState;
-import com.microsoft.applicationinsights.telemetry.SeverityLevel;
-import com.microsoft.applicationinsights.telemetry.Telemetry;
-import com.microsoft.applicationinsights.telemetry.TraceTelemetry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.Map;
 
-public class TelemetryClient extends com.microsoft.applicationinsights.TelemetryClient {
-	private static final String message = "azure.application-insights.instrumentation-key not found, considering configuring Application Insights if you would like to track Telemetry.";
+/**
+ * Custom TelemetryClient that works with the modern Application Insights Java agent.
+ * In Spring Boot 3 with Application Insights 3.7+, telemetry is automatically collected
+ * through the Java agent, so this class primarily provides logging integration.
+ */
+@Component
+public class TelemetryClient {
 	private static final Logger logger = LoggerFactory.getLogger(TelemetryClient.class);
+    private static final Logger telemetryLogger = LoggerFactory.getLogger("ApplicationInsightsTelemetry");
 
-	@Override
-	public void track(Telemetry arg0) {
-		logger.warn(message);
+    public void track(Object telemetry) {
+        telemetryLogger.info("Custom telemetry tracked: {}", telemetry);
+        logger.debug("Telemetry object processed: {}", telemetry.getClass().getSimpleName());
 	}
 
-	@Override
-	public void trackDependency(RemoteDependencyTelemetry telemetry) {
-		logger.warn(message);
+    public void trackDependency(String dependencyName, String commandName, Object duration, boolean success) {
+        telemetryLogger.info("Dependency: {} - {} (Success: {})", dependencyName, commandName, success);
+        logger.debug("Dependency call tracked: {} -> {}", dependencyName, commandName);
 	}
 
-	@Override
-	public void trackDependency(String dependencyName, String commandName, Duration duration, boolean success) {
-		logger.warn(message);
-	}
-
-	@Override
-	public void trackEvent(EventTelemetry telemetry) {
-		logger.warn(message);
-	}
-
-	@Override
 	public void trackEvent(String name, Map<String, String> properties, Map<String, Double> metrics) {
-		logger.warn(message);
+        // Add properties to MDC for structured logging
+        if (properties != null) {
+            properties.forEach(MDC::put);
+        }
+
+        telemetryLogger.info("Event: {} with properties: {} and metrics: {}", name, properties, metrics);
+        logger.info("Custom event tracked: {}", name);
+
+        // Clean up MDC
+        if (properties != null) {
+            properties.keySet().forEach(MDC::remove);
+        }
 	}
 
-	@Override
 	public void trackEvent(String name) {
-		logger.warn(message);
+        telemetryLogger.info("Event: {}", name);
+        logger.info("Simple event tracked: {}", name);
 	}
 
-	@Override
 	public void trackException(Exception exception, Map<String, String> properties, Map<String, Double> metrics) {
-		logger.warn(message);
+        if (properties != null) {
+            properties.forEach(MDC::put);
+        }
+
+        telemetryLogger.error("Exception tracked with properties: {} and metrics: {}", properties, metrics, exception);
+        logger.error("Exception tracked: {}", exception.getMessage(), exception);
+
+        if (properties != null) {
+            properties.keySet().forEach(MDC::remove);
+        }
 	}
 
-	@Override
 	public void trackException(Exception exception) {
-		logger.warn(message);
+        telemetryLogger.error("Exception tracked", exception);
+        logger.error("Simple exception tracked: {}", exception.getMessage(), exception);
 	}
 
-	@Override
-	public void trackException(ExceptionTelemetry telemetry) {
-		logger.warn(message);
-	}
-
-	@Override
 	public void trackHttpRequest(String name, Date timestamp, long duration, String responseCode, boolean success) {
-		logger.warn(message);
+        telemetryLogger.info("HTTP Request: {} - {} ms (Response: {}, Success: {})", name, duration, responseCode, success);
+        logger.debug("HTTP request logged: {} took {} ms", name, duration);
 	}
 
-	@Override
-	public void trackMetric(MetricTelemetry telemetry) {
-		logger.warn(message);
+    public void trackMetric(String name, double value, int sampleCount, double min, double max, Map<String, String> properties) {
+        if (properties != null) {
+            properties.forEach(MDC::put);
+        }
+
+        telemetryLogger.info("Metric: {} = {} (samples: {}, min: {}, max: {}) with properties: {}",
+                name, value, sampleCount, min, max, properties);
+        logger.debug("Metric tracked: {} = {}", name, value);
+
+        if (properties != null) {
+            properties.keySet().forEach(MDC::remove);
+        }
 	}
 
-	@Override
-	public void trackMetric(String name, double value, int sampleCount, double min, double max,
-			Map<String, String> properties) {
-		logger.warn(message);
-	}
-
-	@Override
-	public void trackMetric(String name, double value, Integer sampleCount, Double min, Double max, Double stdDev,
-			Map<String, String> properties) {
-		logger.warn(message);
-	}
-
-	@Override
 	public void trackMetric(String name, double value) {
-		logger.warn(message);
+        telemetryLogger.info("Metric: {} = {}", name, value);
+        logger.debug("Simple metric tracked: {} = {}", name, value);
 	}
 
-	@Override
-	public void trackPageView(PageViewTelemetry telemetry) {
-		logger.warn(message);
+    public void trackPageView(Object pageViewTelemetry) {
+        telemetryLogger.info("Page view tracked: {}", pageViewTelemetry);
+        logger.debug("Page view processed: {}", pageViewTelemetry);
 	}
 
-	@Override
 	public void trackPageView(String name) {
-		logger.warn(message);
+        telemetryLogger.info("Page view: {}", name);
+        logger.info("Page view tracked: {}", name);
 	}
 
-	@Override
-	public void trackRequest(RequestTelemetry request) {
-		logger.warn(message);
+    public void trackTrace(String message, Object severityLevel, Map<String, String> properties) {
+        if (properties != null) {
+            properties.forEach(MDC::put);
+        }
+
+        telemetryLogger.info("Trace [{}]: {} with properties: {}", severityLevel, message, properties);
+        logger.debug("Trace logged with level: {}", severityLevel);
+
+        if (properties != null) {
+            properties.keySet().forEach(MDC::remove);
+        }
 	}
 
-	@Override
-	public void trackSessionState(SessionState sessionState) {
-		logger.warn(message);
+    public void trackTrace(String message, Object severityLevel) {
+        telemetryLogger.info("Trace [{}]: {}", severityLevel, message);
+        logger.debug("Simple trace: {}", message);
 	}
 
-	@Override
-	public void trackTrace(String message, SeverityLevel severityLevel, Map<String, String> properties) {
-		logger.warn(message);
-	}
-
-	@Override
-	public void trackTrace(String message, SeverityLevel severityLevel) {
-		logger.warn(message);
-	}
-
-	@Override
 	public void trackTrace(String message) {
-		logger.warn(message);
+        telemetryLogger.info("Trace: {}", message);
+        logger.info("Trace message: {}", message);
 	}
 
-	@Override
-	public void trackTrace(TraceTelemetry telemetry) {
-		logger.warn(message);
+    public void flush() {
+        telemetryLogger.info("Telemetry flush requested");
+        logger.debug("Telemetry flush operation called");
 	}
-
 }

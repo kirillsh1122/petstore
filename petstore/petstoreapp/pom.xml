@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.10</version>
+        <version>3.5.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -18,15 +18,14 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
-        <java.version>17</java.version>
-        <spring-cloud.version>Hoxton.SR5</spring-cloud.version>
-        <jjwt.version>0.11.5</jjwt.version>
-        <log4j.version>2.20.0</log4j.version>
-        <applicationinsights.version>2.6.4</applicationinsights.version>
-        <azure-active-directory.version>2.2.4</azure-active-directory.version>
-        <spring-cloud-azure-starter.version>4.6.0</spring-cloud-azure-starter.version>
-        <commons-lang3.version>3.12.0</commons-lang3.version>
-        <lombok.version>1.18.38</lombok.version>
+        <java.version>21</java.version>
+        <spring-cloud.version>2024.0.0</spring-cloud.version>
+        <jjwt.version>0.12.6</jjwt.version>
+        <log4j.version>2.24.3</log4j.version>
+        <applicationinsights.version>3.6.2</applicationinsights.version>
+        <spring-cloud-azure-starter.version>5.18.0</spring-cloud-azure-starter.version>
+        <commons-lang3.version>3.17.0</commons-lang3.version>
+        <lombok.version>1.18.36</lombok.version>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss</maven.build.timestamp.format>
     </properties>
 
@@ -52,24 +51,8 @@
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>org.thymeleaf.extras</groupId>
-            <artifactId>thymeleaf-extras-springsecurity5</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.microsoft.azure</groupId>
-            <artifactId>applicationinsights-logging-logback</artifactId>
-            <version>${applicationinsights.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${log4j.version}</version>
+            <artifactId>thymeleaf-extras-springsecurity6</artifactId>
         </dependency>
         <dependency>
             <groupId>com.azure.spring</groupId>
@@ -119,6 +102,16 @@
             <version>${lombok.version}</version>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>applicationinsights-runtime-attach</artifactId>
+            <version>3.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>applicationinsights-core</artifactId>
+            <version>3.7.1</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -160,7 +153,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.6.0</version>
                 <executions>
                     <execution>
                         <id>timestamp-property</id>
