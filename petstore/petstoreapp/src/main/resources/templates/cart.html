@@ -1,12 +1,4 @@
-<div class="row justify-content-center mb-4" th:if="${stacktrace}">
-	<div class="col-lg-10">
-		<div class="alert alert-secondary">
-			<h6 class="alert-heading"><i class="bi bi-code-slash me-2"></i>Debug Information</h6>
-			<hr>
-			<pre class="mb-0" style="font-size: 0.85rem; white-space: pre-wrap;" th:text="${stacktrace}"></pre>
-		</div>
-	</div>
-</div><!doctype html>
+<!doctype html>
 <html lang="en">
 
 <head lang="en" th:replace="~{fragments/head :: head}"></head>
@@ -33,9 +25,20 @@
 			</div>
 		</div>
 
-		<!-- Empty Cart -->
+		<!-- Debug Information -->
+		<div class="row justify-content-center mb-4" th:if="${stacktrace}">
+			<div class="col-lg-10">
+				<div class="alert alert-secondary">
+					<h6 class="alert-heading"><i class="bi bi-code-slash me-2"></i>Debug Information</h6>
+					<hr>
+					<pre class="mb-0" style="font-size: 0.85rem; white-space: pre-wrap;" th:text="${stacktrace}"></pre>
+				</div>
+			</div>
+		</div>
+
+		<!-- Empty Cart - ONLY show when cart is empty AND order is NOT complete -->
 		<div class="text-center py-5"
-			 th:if="${order} == null or ${order.products} == null or (${order.products} != null and ${order.products.size} == 0)">
+			 th:if="(${order} == null or ${order.products} == null or (${order.products} != null and ${order.products.size} == 0)) and (${order} == null or ${order.complete} != true)">
 			<div class="empty-state">
 				<i class="bi bi-cart text-muted mb-3" style="font-size: 4rem;"></i>
 				<h4 class="text-muted mb-2">Your cart is empty</h4>
@@ -46,7 +49,7 @@
 			</div>
 		</div>
 
-		<!-- Cart Items -->
+		<!-- Cart Items - show when there are products and order is not complete -->
 		<div class="row justify-content-center"
 			 th:if="${order} != null and ${order.complete} != true and ${order.products} != null and ${order.products.size} > 0">
 			<div class="col-lg-10">
@@ -127,7 +130,7 @@
 			</div>
 		</div>
 
-		<!-- Order Complete -->
+		<!-- Order Complete - show ONLY when order is complete -->
 		<div class="text-center py-5" th:if="${order} != null and ${order.complete} == true">
 			<div class="success-state">
 				<i class="bi bi-check-circle-fill text-success mb-3" style="font-size: 4rem;"></i>
