@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PetStoreApplication {
 
     private static final String AI_CONNECTION_STRING_ENV = "APPLICATIONINSIGHTS_CONNECTION_STRING";
+    private static final String APPLICATIONINSIGHTS_ENABLED = "APPLICATIONINSIGHTS_ENABLED";
 
     public static void main(String[] args) {
         logApplicationStart();
@@ -22,6 +23,14 @@ public class PetStoreApplication {
     }
 
     private static void configureApplicationInsights() {
+        String aiEnabledStr = System.getenv(APPLICATIONINSIGHTS_ENABLED);
+        boolean aiEnabled = !"false".equalsIgnoreCase(aiEnabledStr); // Default: true
+
+        if (!aiEnabled) {
+            log.info("Application Insights disabled via APPLICATIONINSIGHTS_ENABLED environment variable");
+            return;
+        }
+        
         String connectionString = System.getenv(AI_CONNECTION_STRING_ENV);
 
         if (StringUtils.isNotBlank(connectionString)) {
