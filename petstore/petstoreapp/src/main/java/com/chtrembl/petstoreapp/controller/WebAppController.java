@@ -218,6 +218,8 @@ public class WebAppController {
 		if (StringUtils.isNotEmpty(operator)) {
 			if ("minus".equals(operator)) {
 				cartCount = -1;
+			} else if ("remove".equals(operator)) {
+				cartCount = -999;
 			}
 		}
 
