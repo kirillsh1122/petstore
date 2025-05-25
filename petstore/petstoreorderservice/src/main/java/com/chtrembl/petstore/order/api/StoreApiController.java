@@ -25,6 +25,7 @@ import javax.validation.constraints.Min;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -118,47 +119,53 @@ public class StoreApiController implements StoreApi {
 			this.storeApiCache.getOrder(body.getId()).setEmail(body.getEmail());
 			this.storeApiCache.getOrder(body.getId()).setComplete(body.isComplete());
 
-			// 1 product is just an add from a product page so cache needs to be updated
-			if (body.getProducts() != null && body.getProducts().size() == 1) {
-				Product incomingProduct = body.getProducts().get(0);
-				List<Product> existingProducts = this.storeApiCache.getOrder(body.getId()).getProducts();
-				if (existingProducts != null && existingProducts.size() > 0) {
-					// removal if one exists...
-					if (incomingProduct.getQuantity() == 0) {
-						existingProducts.removeIf(product -> product.getId().equals(incomingProduct.getId()));
-						this.storeApiCache.getOrder(body.getId()).setProducts(existingProducts);
-					}
-					// update quantity if one exists or add new entry
-					else {
+			// If order is being completed - clear products and set complete = true
+			if (body.isComplete()) {
+				log.info(String.format("PetStoreOrderService completing order id:%s - clearing products", body.getId()));
+				this.storeApiCache.getOrder(body.getId()).setProducts(new ArrayList<>());
+				this.storeApiCache.getOrder(body.getId()).setComplete(true);
+			} else {
+				// 1 product is just an add from a product page so cache needs to be updated
+				if (body.getProducts() != null && body.getProducts().size() == 1) {
+					Product incomingProduct = body.getProducts().get(0);
+					List<Product> existingProducts = this.storeApiCache.getOrder(body.getId()).getProducts();
+					if (existingProducts != null && existingProducts.size() > 0) {
+						// removal if one exists...
+						if (incomingProduct.getQuantity() == 0) {
+							existingProducts.removeIf(product -> product.getId().equals(incomingProduct.getId()));
+							this.storeApiCache.getOrder(body.getId()).setProducts(existingProducts);
+						}
+						// update quantity if one exists or add new entry
+						else {
 
-						Product product = existingProducts.stream()
-								.filter(existingProduct -> existingProduct.getId().equals(incomingProduct.getId()))
-								.findAny().orElse(null);
-						if (product != null) {
-							// one exists
-							int qty = product.getQuantity() + incomingProduct.getQuantity();
-							// if the count falls below 1, remove it
-							if (qty < 1) {
-								existingProducts.removeIf(p -> p.getId().equals(incomingProduct.getId()));
-							} else if (qty < 11) {
-								product.setQuantity(qty);
+							Product product = existingProducts.stream()
+									.filter(existingProduct -> existingProduct.getId().equals(incomingProduct.getId()))
+									.findAny().orElse(null);
+							if (product != null) {
+								// one exists
+								int qty = product.getQuantity() + incomingProduct.getQuantity();
+								// if the count falls below 1, remove it
+								if (qty < 1) {
+									existingProducts.removeIf(p -> p.getId().equals(incomingProduct.getId()));
+								} else if (qty < 11) {
+									product.setQuantity(qty);
+								}
+							} else {
+								// existing products but one does not exist matching the incoming product
+								this.storeApiCache.getOrder(body.getId()).addProductsItem(body.getProducts().get(0));
 							}
-						} else {
-							// existing products but one does not exist matching the incoming product
-							this.storeApiCache.getOrder(body.getId()).addProductsItem(body.getProducts().get(0));
+						}
+					} else {
+						// nothing existing....
+						if (body.getProducts().get(0).getQuantity() > 0) {
+							this.storeApiCache.getOrder(body.getId()).setProducts(body.getProducts());
 						}
 					}
-				} else {
-					// nothing existing....
-					if (body.getProducts().get(0).getQuantity() > 0) {
-						this.storeApiCache.getOrder(body.getId()).setProducts(body.getProducts());
-					}
 				}
-			}
-			// n products is the current order being modified and so cache can be replaced
-			// with it
-			if (body.getProducts() != null && body.getProducts().size() > 1) {
-				this.storeApiCache.getOrder(body.getId()).setProducts(body.getProducts());
+				// n products is the current order being modified and so cache can be replaced with it
+				if (body.getProducts() != null && body.getProducts().size() > 1) {
+					this.storeApiCache.getOrder(body.getId()).setProducts(body.getProducts());
+				}
 			}
 
 			try {
@@ -174,7 +181,6 @@ public class StoreApiController implements StoreApi {
 		}
 
 		return new ResponseEntity<Order>(HttpStatus.NOT_IMPLEMENTED);
-
 	}
 
 	@Override
