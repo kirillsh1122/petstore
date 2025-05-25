@@ -24,7 +24,6 @@ public class WebSecurityConfiguration {
 	@Value("${petstore.security.enabled:true}")
 	private boolean securityEnabled;
 
-    // Прямая проверка Azure B2C properties
     @Value("${spring.cloud.azure.active-directory.b2c.base-uri:}")
     private String azureB2cBaseUri;
 
@@ -41,7 +40,6 @@ public class WebSecurityConfiguration {
             return http.build();
 		}
 
-        // Проверяем Azure B2C конфигурацию напрямую
         boolean azureB2cConfigured = StringUtils.hasText(azureB2cBaseUri) &&
                 StringUtils.hasText(azureB2cClientId);
 
