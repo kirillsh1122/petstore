@@ -19,13 +19,13 @@
 
     <properties>
         <java.version>21</java.version>
-        <spring-cloud.version>2024.0.0</spring-cloud.version>
+        <spring-cloud.version>2024.0.1</spring-cloud.version>
+        <spring-cloud-azure.version>5.22.0</spring-cloud-azure.version>
         <jjwt.version>0.12.6</jjwt.version>
         <log4j.version>2.24.3</log4j.version>
-        <applicationinsights.version>3.6.2</applicationinsights.version>
-        <spring-cloud-azure-starter.version>5.18.0</spring-cloud-azure-starter.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
         <lombok.version>1.18.36</lombok.version>
+        <applicationinsights.version>3.7.1</applicationinsights.version>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss</maven.build.timestamp.format>
     </properties>
 
@@ -51,18 +51,20 @@
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.thymeleaf.extras</groupId>
             <artifactId>thymeleaf-extras-springsecurity6</artifactId>
         </dependency>
         <dependency>
             <groupId>com.azure.spring</groupId>
             <artifactId>spring-cloud-azure-starter</artifactId>
-            <version>${spring-cloud-azure-starter.version}</version>
         </dependency>
         <dependency>
             <groupId>com.azure.spring</groupId>
             <artifactId>spring-cloud-azure-starter-active-directory-b2c</artifactId>
-            <version>${spring-cloud-azure-starter.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.cache</groupId>
@@ -105,12 +107,12 @@
         <dependency>
             <groupId>com.microsoft.azure</groupId>
             <artifactId>applicationinsights-runtime-attach</artifactId>
-            <version>3.7.1</version>
+            <version>${applicationinsights.version}</version>
         </dependency>
         <dependency>
             <groupId>com.microsoft.azure</groupId>
             <artifactId>applicationinsights-core</artifactId>
-            <version>3.7.1</version>
+            <version>${applicationinsights.version}</version>
         </dependency>
     </dependencies>
 
@@ -120,6 +122,13 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.azure.spring</groupId>
+                <artifactId>spring-cloud-azure-dependencies</artifactId>
+                <version>${spring-cloud-azure.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
