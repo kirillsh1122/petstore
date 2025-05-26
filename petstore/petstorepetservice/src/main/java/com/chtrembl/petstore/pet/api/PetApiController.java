@@ -1,13 +1,12 @@
 package com.chtrembl.petstore.pet.api;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.List;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
+import com.chtrembl.petstore.pet.model.ContainerEnvironment;
+import com.chtrembl.petstore.pet.model.DataPreload;
+import com.chtrembl.petstore.pet.model.ModelApiResponse;
+import com.chtrembl.petstore.pet.model.Pet;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -25,14 +24,13 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.chtrembl.petstore.pet.model.ContainerEnvironment;
-import com.chtrembl.petstore.pet.model.DataPreload;
-import com.chtrembl.petstore.pet.model.ModelApiResponse;
-import com.chtrembl.petstore.pet.model.Pet;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.swagger.annotations.ApiParam;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.List;
+import java.util.Map;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2021-12-20T15:31:39.272-05:00")
 
@@ -223,4 +221,14 @@ public class PetApiController implements PetApi {
 		return new ResponseEntity<ModelApiResponse>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
+	@RequestMapping(value = "/health", produces = "application/json", method = RequestMethod.GET)
+	public ResponseEntity<Map<String, String>> healthCheck() {
+		Map<String, String> response = Map.of(
+				"status", "UP",
+				"service", "pet-service",
+				"version", containerEnvironment.getAppVersion(),
+				"container", containerEnvironment.getContainerHostName()
+		);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
 }

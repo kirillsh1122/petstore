@@ -50,8 +50,38 @@
 					</small>
 				</div>
 			</div>
+
+			<!-- Dynamic health monitoring section -->
+			<div class="row mt-4 justify-content-center">
+				<div class="col-auto">
+					<div class="health-monitoring">
+						<small class="text-muted d-flex align-items-center justify-content-center gap-3">
+							<!-- Dynamic status indicator -->
+							<span class="health-status-indicator">
+								<span class="health-status-badge status-checking" id="health-status-badge">
+									<i class="fas fa-sync fa-spin"></i>
+									<span>Checking...</span>
+								</span>
+							</span>
+							<a class="health-link" href="/actuator/health" target="_blank">
+								<i class="fas fa-shield-alt"></i> Health Check
+							</a>
+							<span class="text-muted">|</span>
+							<a class="health-link" href="/actuator/info" target="_blank">
+								<i class="fas fa-info-circle"></i> App Info
+							</a>
+							<span class="text-muted" th:if="${currentUsersOnSite}">
+								| <i class="fas fa-users text-primary"></i> 
+								<span th:text="${currentUsersOnSite}">0</span> online
+							</span>
+						</small>
+					</div>
+				</div>
+			</div>
 		</footer>
 	</div>
+
+	<script src="/content/js/health-monitor.js"></script>
 </div>
 </body>
 </html>

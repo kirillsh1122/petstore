@@ -54,6 +54,8 @@ public class WebSecurityConfiguration {
                             .requestMatchers("/login*").permitAll()
                             .requestMatchers("/content/**").permitAll()
                             .requestMatchers("/.well-known/**").permitAll()
+                            .requestMatchers("/actuator/health").permitAll()
+                            .requestMatchers("/actuator/info").permitAll()
                             .anyRequest().authenticated())
                     .oauth2Login(oauth2 -> oauth2
                             .loginPage("/login")

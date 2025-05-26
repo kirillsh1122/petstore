@@ -15,12 +15,20 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
-  tracing:
-    enabled: true
+        include: health,info
   endpoint:
     health:
       show-details: always
+      show-components: always
+  health:
+    ssl:
+      enabled: false
+    diskspace:
+      enabled: false
+    applicationinsights:
+      enabled: false
+    security:
+      enabled: false
 spring:
   application:
     name: petstoreapp

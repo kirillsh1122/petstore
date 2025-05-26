@@ -258,4 +258,16 @@ public class StoreApiController implements StoreApi {
 
 		return new ResponseEntity<Map<String, Integer>>(HttpStatus.NOT_IMPLEMENTED);
 	}
+
+	@RequestMapping(value = "/health", produces = "application/json", method = RequestMethod.GET)
+	public ResponseEntity<Map<String, String>> healthCheck() {
+		Map<String, String> response = Map.of(
+				"status", "UP",
+				"service", "order-service",
+				"version", containerEnvironment.getAppVersion(),
+				"container", containerEnvironment.getContainerHostName()
+		);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
 }
