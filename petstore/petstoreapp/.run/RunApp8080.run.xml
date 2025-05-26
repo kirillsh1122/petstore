@@ -6,6 +6,8 @@
       <env name="PETSTOREPRODUCTSERVICE_URL" value="http://localhost:8082" />
       <env name="PETSTOREORDERSERVICE_URL" value="http://localhost:8083" />
       <env name="APPLICATIONINSIGHTS_ENABLED" value="false"/>
+      <env name="PETSTOREAPP_B2C_ENABLED" value="false"/>
+      <env name="PETSTORE_SECURITY_ENABLED" value="false"/>
     </envs>
     <module name="petstoreapp" />
     <option name="MAIN_CLASS_NAME" value="com.chtrembl.petstoreapp.PetStoreApplication"/>
