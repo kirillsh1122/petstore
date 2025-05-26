@@ -27,7 +27,7 @@ public class PetStoreApplication {
         boolean aiEnabled = !"false".equalsIgnoreCase(aiEnabledStr); // Default: true
 
         if (!aiEnabled) {
-            log.info("Application Insights disabled via APPLICATIONINSIGHTS_ENABLED environment variable");
+            log.info("Application Insights DISABLED via APPLICATIONINSIGHTS_ENABLED environment variable");
             return;
         }
         
@@ -41,8 +41,7 @@ public class PetStoreApplication {
                 log.warn("Failed to attach Application Insights: {}", e.getMessage());
             }
         } else {
-            log.info("Application Insights not configured (no connection string found)");
-            log.debug("To enable Application Insights, set {} environment variable", AI_CONNECTION_STRING_ENV);
+            log.info("Application Insights not configured (no connection string found). Please set the {} environment variable with correct connection string.", AI_CONNECTION_STRING_ENV);
         }
     }
 
