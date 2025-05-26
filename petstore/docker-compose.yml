@@ -11,6 +11,12 @@ services:
       - PETSTOREPETSERVICE_URL=http://petstorepetservice:8081
       - PETSTOREPRODUCTSERVICE_URL=http://petstoreproductservice:8082
       - PETSTOREORDERSERVICE_URL=http://petstoreorderservice:8083
+      # Set to true if you have a connection string set in .env:
+      - APPLICATIONINSIGHTS_ENABLED=true
+      # Enables B2C login/logout flow locally. Set additional configs in .env:
+      - PETSTOREAPP_B2C_ENABLED=true
+      # Enables Spring Security locally. Use together with B2C settings above:
+      - PETSTORE_SECURITY_ENABLED=true
 
   petstorepetservice:
     build:
