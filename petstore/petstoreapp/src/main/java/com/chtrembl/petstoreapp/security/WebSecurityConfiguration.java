@@ -60,7 +60,7 @@ public class WebSecurityConfiguration {
                             .defaultSuccessUrl("/", true));
 
             containerEnvironment.setSecurityEnabled(true);
-            logger.info("Security is ENABLED using Azure B2C auto-configuration.");
+            logger.info("Security is ENABLED using Azure B2C auto-configuration");
 		} else {
             http.csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
