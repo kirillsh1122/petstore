@@ -227,6 +227,7 @@ public class PetApiController implements PetApi {
 				"status", "UP",
 				"service", "pet-service",
 				"version", containerEnvironment.getAppVersion(),
+				"date", containerEnvironment.getAppDate(),
 				"container", containerEnvironment.getContainerHostName()
 		);
 		return new ResponseEntity<>(response, HttpStatus.OK);

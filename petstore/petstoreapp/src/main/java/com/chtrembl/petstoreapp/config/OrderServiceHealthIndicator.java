@@ -46,6 +46,7 @@ class OrderServiceHealthIndicator implements HealthIndicator {
             JsonNode healthData = objectMapper.readTree(response);
             String status = healthData.get("status").asText();
             String version = healthData.has("version") ? healthData.get("version").asText() : "unknown";
+            String date = healthData.has("date") ? healthData.get("date").asText() : "unknown";
             String container = healthData.has("container") ? healthData.get("container").asText() : "unknown";
 
             if ("UP".equalsIgnoreCase(status)) {
@@ -53,14 +54,15 @@ class OrderServiceHealthIndicator implements HealthIndicator {
                         .withDetail("url", baseUrl)
                         .withDetail("status", "Service responding")
                         .withDetail("version", version)
+                        .withDetail("appDate", date)
                         .withDetail("container", container)
-                        .withDetail("service", "order-service")
                         .build();
             } else {
                 return Health.down()
                         .withDetail("url", baseUrl)
                         .withDetail("reason", "Service status: " + status)
                         .withDetail("version", version)
+                        .withDetail("appDate", date)
                         .withDetail("container", container)
                         .build();
             }

@@ -27,6 +27,7 @@
         <postgresql.version>42.5.4</postgresql.version>
         <org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
         <lombock.version>1.18.24</lombock.version>
+        <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss</maven.build.timestamp.format>
     </properties>
 
     <dependencies>
@@ -97,6 +98,22 @@
 
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>version.json</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>version.json</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -105,7 +122,27 @@
                     <execution>
                         <goals>
                             <goal>repackage</goal>
+                            <goal>build-info</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>timestamp-property</id>
+                        <goals>
+                            <goal>timestamp-property</goal>
+                        </goals>
+                        <phase>validate</phase>
+                        <configuration>
+                            <name>build.timestamp</name>
+                            <pattern>yyyy-MM-dd'T'HH:mm:ss</pattern>
+                            <timeZone>UTC</timeZone>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -128,6 +165,17 @@
                             <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <delimiters>
+                        <delimiter>${*}</delimiter>
+                    </delimiters>
+                    <useDefaultDelimiters>true</useDefaultDelimiters>
                 </configuration>
             </plugin>
         </plugins>

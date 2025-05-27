@@ -228,6 +228,7 @@ public class ProductApiController implements ProductApi {
 				"status", "UP",
 				"service", "product-service",
 				"version", containerEnvironment.getAppVersion(),
+				"date", containerEnvironment.getAppDate(),
 				"container", containerEnvironment.getContainerHostName()
 		);
 		return new ResponseEntity<>(response, HttpStatus.OK);

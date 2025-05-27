@@ -96,8 +96,7 @@ public class StoreApiController implements StoreApi {
 		ApiUtil.setResponse(request, "application/json",
 				"{ \"service\" : \"order service\", \"version\" : \"" + containerEnvironment.getAppVersion()
 						+ "\", \"container\" : \"" + containerEnvironment.getContainerHostName()
-						+ "\", \"ordersCacheSize\" : \"" + ordersCacheSize + "\", \"author\" : \"" + containerEnvironment.getAuthor()
-						+ "\" }");
+						+ "\", \"ordersCacheSize\" : \"" + ordersCacheSize + "\" }");
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -265,6 +264,7 @@ public class StoreApiController implements StoreApi {
 				"status", "UP",
 				"service", "order-service",
 				"version", containerEnvironment.getAppVersion(),
+				"date", containerEnvironment.getAppDate(),
 				"container", containerEnvironment.getContainerHostName()
 		);
 		return new ResponseEntity<>(response, HttpStatus.OK);
