@@ -4,13 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -20,15 +18,11 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Calendar;
 
-/**
- * Singleton to store container state
- */
 @Component
-@EnableScheduling
 @Getter
 @Setter
+@Slf4j
 public class ContainerEnvironment implements Serializable {
-	private static Logger logger = LoggerFactory.getLogger(ContainerEnvironment.class);
 	private String containerHostName;
 	private String appVersion;
 	private String appDate;
@@ -43,12 +37,6 @@ public class ContainerEnvironment implements Serializable {
 
 	@Value("${petstore.service.order.url:}")
 	private String petStoreOrderServiceURL;
-
-	@Value("${petstore.service.subscription.key:}")
-	private String petStoreServicesSubscriptionKey;
-
-	@Value("${petstore.apim.host:}")
-	private String petstoreAPIMHost;
 
 	@Autowired
 	private CacheManager currentUsersCacheManager;
@@ -72,7 +60,7 @@ public class ContainerEnvironment implements Serializable {
 				this.setAppDate(version.getDate());
 			}
 		} catch (IOException e) {
-			logger.info("Error parsing file " + e.getMessage());
+			log.error("Error parsing file {}", e.getMessage());
 			this.setAppVersion("unknown");
 			this.setAppDate("unknown");
 		}
