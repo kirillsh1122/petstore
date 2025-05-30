@@ -7,17 +7,30 @@
 ### Recommended
 
 *Functions*
-- 🎥 [Azure Functions for Developers](https://www.linkedin.com/learning/azure-functions-for-developers-24637001): In-depth course on building serverless applications using Azure Functions (~2h 12m)
+
+- 🎥 [Azure Functions for Developers](https://www.linkedin.com/learning/azure-functions-for-developers-24637001):
+  In-depth course on building serverless applications using Azure Functions [2024] (~2h 12m)
 - 📄 [Create serverless logic with Azure Functions](https://learn.microsoft.com/en-us/training/modules/create-serverless-logic-with-azure-functions/): Learn to develop scalable, serverless solutions with Azure Functions (~36m)
-- 📄 [Quickstart: Create a Java function in Azure from the command line](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-cli-java?tabs=windows%2Cbash%2Cazure-cli%2Cbrowser): Tutorial on creating Java serverless Functions on Azure
+-
+📄 [Create a Java function from the command line](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-cli-java?tabs=windows%2Cbash%2Cazure-cli%2Cbrowser):
+Tutorial on creating Java serverless Functions on Azure
 - 📄 [Spring Cloud Function in Azure](https://learn.microsoft.com/en-us/azure/developer/java/spring-framework/getting-started-with-spring-cloud-function-in-azure): Quick introduction to running Spring Cloud Functions in Azure
-- 📄 [Execute an Azure Function with triggers](https://docs.microsoft.com/en-us/learn/modules/execute-azure-function-with-triggers/): Learn how to run Azure Functions in response to various event triggers (~1h 23m)
+-
+📄 [Execute an Azure Function with triggers](https://learn.microsoft.com/en-us/training/modules/execute-azure-function-with-triggers/):
+Learn how to run Azure Functions in response to various event triggers (~1h 23m)
 
 *Storage*
 - 🎥 [Introduction to Azure Blob Storage](https://www.youtube.com/watch?v=fQwxPqYIUfI): This video provides a general introduction to Azure Blob Storage, making it ideal for beginners (~2m)
+-
+📄 [Introduction to Azure Blob storage](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction):
+Comprehensive introduction to Azure Blob Storage concepts and architecture
 - 📚 [Azure Blob Storage documentation](https://learn.microsoft.com/en-us/azure/storage/blobs/): Comprehensive documentation on Azure Blob Storage
-- 📄 [Store application data with Azure Blob storage](https://learn.microsoft.com/en-us/training/modules/store-app-data-with-azure-blob-storage/): In-depth module on how to utilize Azure Blob Storage for application data (~50m)
-- 📄 [Upload a file to an Azure Storage Blob](https://learn.microsoft.com/en-us/azure/developer/java/spring-framework/configure-spring-boot-starter-java-app-with-azure-storage): How to configure a Spring Boot application to upload files to Azure Storage Blobs
+-
+📄 [Store application data with Azure Blob Storage](https://learn.microsoft.com/en-us/training/modules/store-app-data-with-azure-blob-storage/):
+In-depth module on how to utilize Azure Blob Storage for application data (~50m)
+-
+📄 [Use Spring Boot to upload a file to Azure Blob Storage](https://learn.microsoft.com/en-us/azure/developer/java/spring-framework/configure-spring-boot-starter-java-app-with-azure-storage):
+How to configure a Spring Boot application to upload files to Azure Storage Blobs
 
 ### Additional Resources
 

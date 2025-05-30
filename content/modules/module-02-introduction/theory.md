@@ -7,7 +7,10 @@
 ### Recommended
 
 *Azure: Overview*
-- 🎥 [Azure: Understanding the Big Picture](https://www.linkedin.com/learning/azure-understanding-the-big-picture-24392017): Gain a bird's-eye view of Microsoft Azure's features and services (~3h 22m)
+
+-
+🎥 [Azure: Understanding the Big Picture](https://www.linkedin.com/learning/azure-understanding-the-big-picture-24392017):
+Gain a bird's-eye view of Microsoft Azure's features and services [2024] (~3h 22m)
 - 📄 [Microsoft Azure Fundamentals: Describe cloud concepts](https://learn.microsoft.com/en-us/training/paths/microsoft-azure-fundamentals-describe-cloud-concepts/): Explore the fundamentals of cloud computing in Azure's context (~52m)
 - 📄 [Microsoft Azure Fundamentals: Describe Azure architecture and services](https://learn.microsoft.com/en-us/training/paths/azure-fundamentals-describe-azure-architecture-services/): Dive into Azure's architecture and the various services it offers (~3h 25m)
 
@@ -22,5 +25,6 @@
 
 *Azure CLI*
 - 🛠️ [Azure CLI onboarding cheat sheet](https://learn.microsoft.com/en-us/cli/azure/cheat-sheet-onboarding): A quick reference to essential Azure CLI commands and workflows
-- 📄 [Azure CLI command reference](https://docs.microsoft.com/en-us/cli/azure/reference-index): An extensive reference document of Azure CLI commands
+- 📄 [Azure CLI command reference](https://learn.microsoft.com/en-us/cli/azure/reference-index): An extensive reference
+  document of Azure CLI commands
 - 🛠️ [Azure CLI sample scripts](https://learn.microsoft.com/en-us/cli/azure/samples-index?tabs=service): Peruse a range of sample scripts for performing various tasks in Azure with the CLI
