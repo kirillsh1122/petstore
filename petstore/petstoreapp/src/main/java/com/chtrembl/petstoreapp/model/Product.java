@@ -2,14 +2,13 @@ package com.chtrembl.petstoreapp.model;
 
 import lombok.Data;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Product model representing items in the store.
  */
 @Data
-public class Product implements Serializable {
+public class Product {
 	private Long id;
 	private Category category;
 	private String name;

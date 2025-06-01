@@ -4,14 +4,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Pet model representing animals available in the store.
  */
 @Data
-public class Pet implements Serializable {
+public class Pet {
 	private Long id;
 	private Category category;
 	private String name;
