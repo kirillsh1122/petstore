@@ -13,7 +13,7 @@ public class OpenApiConfig {
         Info info = new Info()
                 .title("Pet Store Product Service API")
                 .version("v2")
-                .description("This API exposes endpoints for managing pet store products");
+                .description("This API exposes endpoints for managing Pet Store products");
 
         return new OpenAPI()
                 .info(info);
