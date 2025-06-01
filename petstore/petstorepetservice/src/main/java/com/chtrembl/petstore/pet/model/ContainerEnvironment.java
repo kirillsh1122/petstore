@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Calendar;
@@ -19,7 +18,7 @@ import java.util.Calendar;
 @Setter
 @Getter
 @Slf4j
-public class ContainerEnvironment implements Serializable {
+public class ContainerEnvironment {
     private String containerHostName;
     private String appVersion;
     private String appDate;
