@@ -1,34 +1,37 @@
-springfoxdocumentation:
-  swagger:
-    v2:
-      path: /api-docs
-      
-server:
-  port: ${PETSTOREPETSERVICE_SERVER_PORT:8080}
-  
 spring:
   application:
     name: petstorepetservice
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
+server:
+  port: ${PETSTOREPETSERVICE_SERVER_PORT:8080}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+  show-actuator: false
 
 management:
   endpoints:
     web:
       exposure:
-        include: "*"       
-  trace:
-    http:
-      enabled: true 
+        include: health,info
   endpoint:
-    httptrace:
-      enabled: true
-    
+    health:
+      show-details: always
+      show-components: always
+  health:
+    ssl:
+      enabled: false
+    diskspace:
+      enabled: false
+
 data:
   pets:
     - id: 1
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Afador"
@@ -40,7 +43,7 @@ data:
           name: "large"
       status: "available"
     - id: 2
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "American Bulldog"
@@ -52,7 +55,7 @@ data:
           name: "large"
       status: "available"
     - id: 3
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Australian Retriever"
@@ -64,7 +67,7 @@ data:
           name: "large"
       status: "available"
     - id: 4
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Australian Shepherd"
@@ -73,10 +76,10 @@ data:
         - id: 1
           name: "doggie"
         - id: 2
-          name: "large"          
+          name: "large"
       status: "available"
     - id: 5
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Basset Hound"
@@ -88,7 +91,7 @@ data:
           name: "small"
       status: "available"
     - id: 6
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Beagle"
@@ -97,10 +100,10 @@ data:
         - id: 1
           name: "doggie"
         - id: 2
-          name: "small"          
+          name: "small"
       status: "available"
     - id: 7
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Border Terrier"
@@ -112,7 +115,7 @@ data:
           name: "small"
       status: "available"
     - id: 8
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Boston Terrier"
@@ -124,7 +127,7 @@ data:
           name: "small"
       status: "available"
     - id: 9
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Bulldog"
@@ -136,7 +139,7 @@ data:
           name: "large"
       status: "available"
     - id: 10
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Bullmastiff"
@@ -148,7 +151,7 @@ data:
           name: "large"
       status: "available"
     - id: 11
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Chihuahua"
@@ -160,7 +163,7 @@ data:
           name: "small"
       status: "available"
     - id: 12
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Cocker Spaniel"
@@ -172,7 +175,7 @@ data:
           name: "small"
       status: "available"
     - id: 13
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "German Sheperd"
@@ -184,7 +187,7 @@ data:
           name: "large"
       status: "available"
     - id: 14
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Labrador Retriever"
@@ -196,7 +199,7 @@ data:
           name: "large"
       status: "available"
     - id: 15
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Pomeranian"
@@ -208,7 +211,7 @@ data:
           name: "small"
       status: "available"
     - id: 16
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Pug"
@@ -220,7 +223,7 @@ data:
           name: "small"
       status: "available"
     - id: 17
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Rottweiler"
@@ -232,7 +235,7 @@ data:
           name: "large"
       status: "available"
     - id: 18
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Shetland Sheepdog"
@@ -244,7 +247,7 @@ data:
           name: "large"
       status: "available"
     - id: 19
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Shih Tzu"
@@ -256,7 +259,7 @@ data:
           name: "small"
       status: "available"
     - id: 20
-      category: 
+      category:
         id: 1
         name: "Dog"
       name: "Toy Fox Terrier"
@@ -268,7 +271,7 @@ data:
           name: "small"
       status: "available"
     - id: 21
-      category: 
+      category:
         id: 1
         name: "Cat"
       name: "Abyssinian"
@@ -280,7 +283,7 @@ data:
           name: "small"
       status: "available"
     - id: 22
-      category: 
+      category:
         id: 1
         name: "Cat"
       name: "American Bobtail"
@@ -292,7 +295,7 @@ data:
           name: "small"
       status: "available"
     - id: 23
-      category: 
+      category:
         id: 1
         name: "Cat"
       name: "American Shorthair"
@@ -304,7 +307,7 @@ data:
           name: "small"
       status: "available"
     - id: 24
-      category: 
+      category:
         id: 1
         name: "Cat"
       name: "Balinese"
@@ -316,7 +319,7 @@ data:
           name: "small"
       status: "available"
     - id: 25
-      category: 
+      category:
         id: 1
         name: "Cat"
       name: "Birman"
@@ -328,7 +331,7 @@ data:
           name: "small"
       status: "available"
     - id: 26
-      category: 
+      category:
         id: 1
         name: "Cat"
       name: "Bombay"
@@ -340,7 +343,7 @@ data:
           name: "small"
       status: "available"
     - id: 27
-      category: 
+      category:
         id: 1
         name: "Cat"
       name: "British Shorthair"
@@ -352,7 +355,7 @@ data:
           name: "small"
       status: "available"
     - id: 28
-      category: 
+      category:
         id: 1
         name: "Cat"
       name: "Burmilla"
@@ -364,7 +367,7 @@ data:
           name: "small"
       status: "available"
     - id: 29
-      category: 
+      category:
         id: 1
         name: "Cat"
       name: "Chartreux"
@@ -376,7 +379,7 @@ data:
           name: "small"
       status: "available"
     - id: 30
-      category: 
+      category:
         id: 1
         name: "Cat"
       name: "Cornish Rex"
@@ -388,7 +391,7 @@ data:
           name: "small"
       status: "available"
     - id: 31
-      category: 
+      category:
         id: 1
         name: "Fish"
       name: "Goldfish"

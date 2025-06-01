@@ -1,21 +1,15 @@
-package io.swagger;
+package com.chtrembl.petstore.pet;
 
+import com.chtrembl.petstore.pet.model.ContainerEnvironment;
+import com.chtrembl.petstore.pet.model.DataPreload;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-
-import com.chtrembl.petstore.pet.model.ContainerEnvironment;
-import com.chtrembl.petstore.pet.model.DataPreload;
-
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
-@EnableSwagger2
-@ComponentScan(basePackages = { "io.swagger", "com.chtrembl.petstore.pet.api", "io.swagger.configuration" })
-public class Swagger2SpringBoot implements CommandLineRunner {
+public class PetServiceApplication implements CommandLineRunner {
 
 	@Bean
 	public ContainerEnvironment containerEnvvironment() {
@@ -35,7 +29,7 @@ public class Swagger2SpringBoot implements CommandLineRunner {
 	}
 
 	public static void main(String[] args) throws Exception {
-		new SpringApplication(Swagger2SpringBoot.class).run(args);
+        new SpringApplication(PetServiceApplication.class).run(args);
 	}
 
 	class ExitException extends RuntimeException implements ExitCodeGenerator {
