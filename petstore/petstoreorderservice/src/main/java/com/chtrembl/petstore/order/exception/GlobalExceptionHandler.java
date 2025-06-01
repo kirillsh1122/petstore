@@ -88,6 +88,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
     }
 
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleOrderNotFoundException(
+            OrderNotFoundException ex) {
+
+        Map<String, Object> response = new HashMap<>();
+        response.put(ERROR, "Order not found");
+        response.put(MESSAGE, ex.getMessage());
+
+        log.warn("Order not found: {}", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
 
