@@ -15,6 +15,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -58,11 +59,15 @@ public class PetStoreServiceImpl implements PetStoreService {
 	public Collection<Pet> getPets(String category) {
 		List<Pet> pets = new ArrayList<>();
 
-		this.sessionUser.getTelemetryClient().trackEvent(
-				String.format("PetStoreApp user %s is requesting to retrieve pets from the PetStorePetService",
-						this.sessionUser.getName()),
-				this.sessionUser.getCustomEventProperties(), null);
+		MDC.put("operation", "getPets");
+		MDC.put("category", category);
+
 		try {
+			this.sessionUser.getTelemetryClient().trackEvent(
+					String.format("PetStoreApp user %s is requesting to retrieve pets from the PetStorePetService",
+							this.sessionUser.getName()),
+					this.sessionUser.getCustomEventProperties(), null);
+
 			Consumer<HttpHeaders> consumer = it -> it.addAll(this.webRequest.getHeaders());
 			pets = this.petServiceWebClient.get().uri("petstorepetservice/v2/pet/findByStatus?status=available")
 					.accept(MediaType.APPLICATION_JSON)
@@ -76,6 +81,9 @@ public class PetStoreServiceImpl implements PetStoreService {
 
 			pets = pets.stream().filter(pet -> category.equals(pet.getCategory().getName()))
 					.collect(Collectors.toList());
+
+			logger.info("Successfully retrieved {} pets for category {}", pets.size(), category);
+
 			return pets;
 		} catch (WebClientException wce) {
 			this.sessionUser.getTelemetryClient().trackException(wce);
@@ -85,8 +93,11 @@ public class PetStoreServiceImpl implements PetStoreService {
 							wce.getMessage(),
 							this.containerEnvironment.getContainerHostName())
 			);
+			logger.error("Failed to retrieve pets from PetStorePetService", wce);
 			throw new IllegalStateException("Unable to retrieve pets from the PetStorePetService", wce);
 		} catch (IllegalArgumentException iae) {
+			logger.error("Invalid argument when retrieving pets", iae);
+
 			Pet pet = new Pet();
 			pet.setName("petstore.service.url:${PETSTOREPETSERVICE_URL} needs to be enabled for this service to work"
 					+ iae.getMessage());
@@ -94,6 +105,9 @@ public class PetStoreServiceImpl implements PetStoreService {
 			pet.setCategory(new Category());
 			pet.setId((long) 0);
 			pets.add(pet);
+		} finally {
+			MDC.remove("operation");
+			MDC.remove("category");
 		}
 		return pets;
 	}
@@ -148,14 +162,22 @@ public class PetStoreServiceImpl implements PetStoreService {
 			Order updatedOrder = new Order();
 
 			updatedOrder.setId(this.sessionUser.getSessionId());
-			updatedOrder.setEmail(this.sessionUser.getEmail());
+
+			// Set email only if user is logged in and email is available
+			String userEmail = this.sessionUser.getEmail();
+			if (userEmail != null && !userEmail.trim().isEmpty()) {
+				updatedOrder.setEmail(userEmail);
+				logger.debug("Setting order email to: {}", userEmail);
+			} else {
+				logger.warn("User email is not available for session: {}", this.sessionUser.getSessionId());
+			}
 
 			if (completeOrder) {
 				updatedOrder.setComplete(true);
 			} else {
 				List<Product> products = new ArrayList<>();
 				Product product = new Product();
-				product.setId(Long.valueOf(productId));
+				product.setId(productId);
 				product.setQuantity(quantity);
 				products.add(product);
 				updatedOrder.setProducts(products);

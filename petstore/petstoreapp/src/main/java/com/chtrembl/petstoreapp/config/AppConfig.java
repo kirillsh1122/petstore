@@ -1,6 +1,7 @@
 package com.chtrembl.petstoreapp.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -19,10 +20,16 @@ import java.util.concurrent.TimeUnit;
 @ComponentScan
 @EnableCaching
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
+@RequiredArgsConstructor
 public class AppConfig implements WebMvcConfigurer {
+
+	private final MDCInterceptor mdcInterceptor;
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(mdcInterceptor)
+				.addPathPatterns("/**")
+				.excludePathPatterns("/content/**", "/css/**", "/js/**", "/images/**");
 	}
 
 	@Bean

@@ -6,12 +6,10 @@ import com.chtrembl.petstoreapp.model.Pet;
 import com.chtrembl.petstoreapp.model.User;
 import com.chtrembl.petstoreapp.service.PetStoreService;
 import com.microsoft.applicationinsights.telemetry.PageViewTelemetry;
-import com.nimbusds.jose.shaded.gson.JsonArray;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCache;
@@ -29,7 +27,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Controller for the PetStore web application.
@@ -38,8 +35,8 @@ import java.util.Objects;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class WebAppController {
-	private static final Logger logger = LoggerFactory.getLogger(WebAppController.class);
 	private static final String CURRENT_USERS_HUB = "currentUsers";
 
 	private final ContainerEnvironment containerEnvironment;
@@ -60,19 +57,28 @@ public class WebAppController {
 			caffeineCache.put(this.sessionUser.getSessionId(), this.sessionUser.getName());
 		}
 
+		MDC.put("sessionId", this.sessionUser.getSessionId());
+		MDC.put("userName", this.sessionUser.getName());
+		MDC.put("containerHost", this.containerEnvironment.getContainerHostName());
+
 		caffeineCache.put(this.sessionUser.getSessionId(), this.sessionUser.getName());
 
 		if (token != null) {
 			final OAuth2User user = token.getPrincipal();
 
-			try {
-				this.sessionUser.setEmail((String) ((JsonArray) Objects.requireNonNull(user.getAttribute("emails"))).get(0).getAsString());
-			} catch (Exception e) {
-				logger.warn(String.format("PetStoreApp  %s logged in, however cannot get email associated: %s",
-						this.sessionUser.getName(), e.getMessage()));
+			String userEmail = extractUserEmail(user);
+			if (userEmail != null) {
+				this.sessionUser.setEmail(userEmail);
+				MDC.put("userEmail", userEmail);
+				log.debug("User email set to: {}", userEmail);
+			} else {
+				log.warn("Could not extract email for user: {}", this.sessionUser.getName());
 			}
 
 			this.sessionUser.setName((String) user.getAttributes().get("name"));
+			MDC.put("userName", this.sessionUser.getName());
+			MDC.put("authType", "OAuth2");
+			MDC.put("isAuthenticated", "true");
 
 			if (!this.sessionUser.isInitialTelemetryRecorded()) {
 				this.sessionUser.getTelemetryClient().trackEvent(
@@ -85,6 +91,9 @@ public class WebAppController {
 			model.addAttribute("claims", user.getAttributes());
 			model.addAttribute("user", this.sessionUser.getName());
 			model.addAttribute("grant_type", user.getAuthorities());
+		} else {
+			MDC.put("authType", "Anonymous");
+			MDC.put("isAuthenticated", "false");
 		}
 
 		model.addAttribute("userName", this.sessionUser.getName());
@@ -93,13 +102,11 @@ public class WebAppController {
 		model.addAttribute("appVersion", this.containerEnvironment.getAppVersion());
 		model.addAttribute("cartSize", this.sessionUser.getCartCount());
 		model.addAttribute("currentUsersOnSite", nativeCache.asMap().size());
-
-		MDC.put("session_Id", this.sessionUser.getSessionId());
 	}
 
 	@GetMapping(value = "/login")
 	public String login(Model model, HttpServletRequest request) throws URISyntaxException {
-		logger.info("PetStoreApp /login requested, routing to login view...");
+		log.info("PetStoreApp /login requested, routing to login view...");
 
 		PageViewTelemetry pageViewTelemetry = new PageViewTelemetry();
 		pageViewTelemetry.setUrl(new URI(request.getRequestURL().toString()));
@@ -118,7 +125,7 @@ public class WebAppController {
 			final Collection<Pet> pets = this.petStoreService.getPets(category);
 			model.addAttribute("pets", pets);
 		} catch (Exception ex) {
-			logger.error("Error loading pets from service: ", ex);
+			log.error("Error loading pets from service: ", ex);
 			model.addAttribute("error", "Sorry, we couldn't load pet breeds.");
 			model.addAttribute("stacktrace", getStackTrace(ex));
 		}
@@ -140,12 +147,11 @@ public class WebAppController {
 			}
 
 			Pet pet = this.sessionUser.getPets().get(id - 1);
-			logger.info(String.format("PetStoreApp /breeddetails requested for %s, routing to dogbreeddetails view...",
-					pet.getName()));
+			log.info("PetStoreApp /breeddetails requested for {}, routing to dogbreeddetails view...", pet.getName());
 			model.addAttribute("pet", pet);
 
 		} catch (Exception ex) {
-			logger.error("Error loading pet details: ", ex);
+			log.error("Error loading pet details: ", ex);
 			model.addAttribute("error", "Sorry, we couldn't load pet details.");
 			model.addAttribute("stacktrace", getStackTrace(ex));
 		}
@@ -163,7 +169,7 @@ public class WebAppController {
 		}
 
 		try {
-			logger.info(String.format("PetStoreApp /products requested for %s, routing to products view...", category));
+			log.info("PetStoreApp /products requested for {}, routing to products view...", category);
 
 			Collection<Pet> pets = this.petStoreService.getPets(category);
 			Pet pet = new Pet();
@@ -174,7 +180,7 @@ public class WebAppController {
 			model.addAttribute("products",
 					this.petStoreService.getProducts(pet.getCategory().getName() + " " + category, pet.getTags()));
 		} catch (Exception ex) {
-			logger.error("Error loading products: ", ex);
+			log.error("Error loading products: ", ex);
 			model.addAttribute("error", "Sorry, we couldn't load products.");
 			model.addAttribute("stacktrace", getStackTrace(ex));
 		}
@@ -201,7 +207,7 @@ public class WebAppController {
 			}
 
 		} catch (Exception ex) {
-			logger.error("Error loading cart: ", ex);
+			log.error("Error loading cart: ", ex);
 			model.addAttribute("error", "Sorry, we couldn't load your cart.");
 			model.addAttribute("stacktrace", getStackTrace(ex));
 		}
@@ -238,8 +244,7 @@ public class WebAppController {
 	@GetMapping(value = "/claims")
 	public String claims(Model model, OAuth2AuthenticationToken token, HttpServletRequest request)
 			throws URISyntaxException {
-		logger.info(String.format("PetStoreApp /claims requested for %s, routing to claims view...",
-				this.sessionUser.getName()));
+		log.info("PetStoreApp /claims requested for {}, routing to claims view...", this.sessionUser.getName());
 		return "claims";
 	}
 
@@ -276,5 +281,57 @@ public class WebAppController {
 		if (cause != null && cause != throwable) {
 			appendStackTrace(sb, cause, "Caused by: ");
 		}
+	}
+
+	private String extractUserEmail(OAuth2User user) {
+		try {
+			// Try Azure B2C "emails" claim first (ArrayList<String>)
+			Object emailsAttribute = user.getAttribute("emails");
+			if (emailsAttribute instanceof java.util.Collection) {
+				@SuppressWarnings("unchecked")
+				java.util.Collection<String> emails = (java.util.Collection<String>) emailsAttribute;
+				if (!emails.isEmpty()) {
+					String email = emails.iterator().next();
+					log.debug("Found email from 'emails' collection: {}", email);
+					return email.trim();
+				}
+			}
+
+			// Try other possible email attribute names
+			String[] emailAttributeNames = {
+					"email",
+					"preferred_username",
+					"upn",
+					"signInNames.emailAddress",
+					"mail",
+					"userPrincipalName"
+			};
+
+			for (String attributeName : emailAttributeNames) {
+				Object emailValue = user.getAttribute(attributeName);
+				if (emailValue != null) {
+					String emailStr = emailValue.toString().trim();
+					if (!emailStr.isEmpty() && emailStr.contains("@")) {
+						log.debug("Found email from attribute '{}': {}", attributeName, emailStr);
+						return emailStr;
+					}
+				}
+			}
+
+			// Fallback: use subject ID as identifier
+			String sub = user.getAttribute("sub");
+			if (sub != null && !sub.trim().isEmpty()) {
+				String pseudoEmail = sub + "@b2c.internal";
+				log.warn("No email found, using subject ID as email identifier: {}", pseudoEmail);
+				return pseudoEmail;
+			}
+
+			log.warn("No email or subject ID found in OAuth2 attributes");
+
+		} catch (Exception e) {
+			log.warn("Error extracting email from OAuth2User: {}", e.getMessage(), e);
+		}
+
+		return null;
 	}
 }

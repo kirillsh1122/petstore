@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level [%X{sessionId:-NO_SESSION}] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/petstoreapp.log</file>
@@ -11,7 +16,10 @@
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -- %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [sessionId=%X{sessionId:-NO_SESSION}]
+                [user=%X{userName:-ANON}] [auth=%X{authType:-}] [reqId=%X{requestId:-}] [host=%X{containerHost:-}]
+                %logger{36} - %msg%n
+            </pattern>
         </encoder>
     </appender>
 
