@@ -6,11 +6,6 @@
     <option name="MAIN_CLASS_NAME" value="com.chtrembl.petstore.pet.PetServiceApplication"/>
     <module name="petstorepetservice" />
     <option name="WORKING_DIRECTORY" value="$MODULE_WORKING_DIR$" />
-    <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
-      <option name="credential"/>
-      <option name="region"/>
-      <option name="useCurrentConnection" value="false"/>
-    </extension>
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
