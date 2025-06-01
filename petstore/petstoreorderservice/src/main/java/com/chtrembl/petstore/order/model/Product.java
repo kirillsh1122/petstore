@@ -3,7 +3,6 @@ package com.chtrembl.petstore.order.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -24,7 +23,6 @@ public class Product {
 
 	@NotNull(message = "Product quantity cannot be null")
 	@Max(value = 10, message = "Maximum quantity per product is 10")
-	@Min(value = 0, message = "Quantity cannot be negative")
 	@Builder.Default
 	@Schema(description = "Product quantity in order", example = "2")
 	private Integer quantity = 0;
