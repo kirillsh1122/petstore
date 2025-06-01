@@ -199,13 +199,20 @@ public class PetStoreServiceImpl implements PetStoreService {
 					.header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
 					.header("Cache-Control", "no-cache")
 					.retrieve()
+					.onStatus(
+							status -> status.value() == 404,
+							response -> Mono.empty()
+					)
 					.bodyToMono(new ParameterizedTypeReference<Order>() {
-					}).block();
+					})
+					.block();
+
+			return order;
+
 		} catch (Exception e) {
 			logger.error("Unable to retrieve order from order service", e);
 			throw new IllegalStateException("Unable to retrieve order from order service", e);
 		}
-		return order;
 	}
 
 }
