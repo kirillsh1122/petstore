@@ -23,11 +23,6 @@ public class Order {
 	private List<Product> products;
 	private OffsetDateTime shipDate;
 	private StatusEnum status;
-
-	public boolean isComplete() {
-		return complete != null ? complete : false;
-	}
-
 	private Boolean complete = false;
 
 	/**
@@ -71,8 +66,7 @@ public class Order {
 		return this;
 	}
 
-	public Order complete(Boolean complete) {
-		this.complete = complete;
-		return this;
+	public boolean isComplete() {
+		return complete != null ? complete : false;
 	}
 }
