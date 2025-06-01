@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
@@ -21,7 +20,6 @@ public class Order {
 	private String id;
 	private String email;
 	private List<Product> products;
-	private OffsetDateTime shipDate;
 	private StatusEnum status;
 	private Boolean complete = false;
 
@@ -67,6 +65,6 @@ public class Order {
 	}
 
 	public boolean isComplete() {
-		return complete != null ? complete : false;
+		return complete != null && complete;
 	}
 }
