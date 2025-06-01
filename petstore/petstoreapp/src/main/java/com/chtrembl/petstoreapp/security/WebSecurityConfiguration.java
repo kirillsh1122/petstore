@@ -2,8 +2,7 @@ package com.chtrembl.petstoreapp.security;
 
 import com.chtrembl.petstoreapp.model.ContainerEnvironment;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,9 +15,8 @@ import org.springframework.util.StringUtils;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class WebSecurityConfiguration {
-	private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfiguration.class);
-
     private final ContainerEnvironment containerEnvironment;
 
 	@Value("${petstore.security.enabled:true}")
@@ -36,7 +34,7 @@ public class WebSecurityConfiguration {
             http.csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
             containerEnvironment.setSecurityEnabled(false);
-			logger.warn("Security is DISABLED via petstore.security.enabled = false");
+            log.warn("Security is DISABLED via petstore.security.enabled = false");
             return http.build();
 		}
 
@@ -62,12 +60,12 @@ public class WebSecurityConfiguration {
                             .defaultSuccessUrl("/", true));
 
             containerEnvironment.setSecurityEnabled(true);
-            logger.info("Security is ENABLED using Azure B2C auto-configuration");
+            log.info("Security is ENABLED using Azure B2C auto-configuration");
 		} else {
             http.csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
             containerEnvironment.setSecurityEnabled(false);
-			logger.warn("Security ENABLED in config but Azure B2C not configured — fallback to DISABLED");
+            log.warn("Security ENABLED in config but Azure B2C not configured — fallback to DISABLED");
 		}
 
         return http.build();
