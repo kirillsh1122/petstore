@@ -37,6 +37,10 @@ spring:
   cache:
     cache-names: currentUsers
   cloud:
+    discovery:
+      enabled: false
+    refresh:
+      enabled: false
     azure:
       active-directory:
         b2c:

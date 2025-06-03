@@ -1,3 +1,4 @@
+// Updated PetStoreApplication.java
 package com.chtrembl.petstoreapp;
 
 import com.microsoft.applicationinsights.attach.ApplicationInsights;
@@ -5,9 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @Slf4j
 @SpringBootApplication
+@EnableFeignClients(basePackages = "com.chtrembl.petstoreapp.client")
 public class PetStoreApplication {
 
     private static final String AI_CONNECTION_STRING_ENV = "APPLICATIONINSIGHTS_CONNECTION_STRING";
@@ -30,7 +33,7 @@ public class PetStoreApplication {
             log.info("Application Insights DISABLED via APPLICATIONINSIGHTS_ENABLED environment variable");
             return;
         }
-        
+
         String connectionString = System.getenv(AI_CONNECTION_STRING_ENV);
 
         if (StringUtils.isNotBlank(connectionString)) {
