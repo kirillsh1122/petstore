@@ -1,4 +1,3 @@
-// Updated PetStoreApplication.java
 package com.chtrembl.petstoreapp;
 
 import com.microsoft.applicationinsights.attach.ApplicationInsights;
