@@ -1,4 +1,4 @@
-package com.chtrembl.petstoreapp.config;
+package com.chtrembl.petstoreapp.config.health;
 
 import com.chtrembl.petstoreapp.model.ContainerEnvironment;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,10 +13,10 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.time.Duration;
 
-@Component("orderService")
+@Component("productService")
 @RequiredArgsConstructor
 @Slf4j
-class OrderServiceHealthIndicator implements HealthIndicator {
+class ProductServiceHealthIndicator implements HealthIndicator {
 
     private final ContainerEnvironment containerEnvironment;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -24,10 +24,10 @@ class OrderServiceHealthIndicator implements HealthIndicator {
     @Override
     public Health health() {
         try {
-            String baseUrl = containerEnvironment.getPetStoreOrderServiceURL();
+            String baseUrl = containerEnvironment.getPetStoreProductServiceURL();
             if (baseUrl == null || baseUrl.isEmpty()) {
                 return Health.down()
-                        .withDetail("reason", "Order service URL not configured")
+                        .withDetail("reason", "Product service URL not configured")
                         .withDetail("url", "not set")
                         .build();
             }
@@ -37,7 +37,7 @@ class OrderServiceHealthIndicator implements HealthIndicator {
                     .baseUrl(baseUrl)
                     .build()
                     .get()
-                    .uri("/petstoreorderservice/v2/health")
+                    .uri("/petstoreproductservice/v2/health")
                     .retrieve()
                     .bodyToMono(String.class)
                     .timeout(Duration.ofSeconds(5))
@@ -68,16 +68,16 @@ class OrderServiceHealthIndicator implements HealthIndicator {
             }
 
         } catch (WebClientResponseException e) {
-            log.warn("Order service health check failed with HTTP {}: {}", e.getStatusCode(), e.getMessage());
+            log.warn("Product service health check failed with HTTP {}: {}", e.getStatusCode(), e.getMessage());
             return Health.down()
-                    .withDetail("url", containerEnvironment.getPetStoreOrderServiceURL())
+                    .withDetail("url", containerEnvironment.getPetStoreProductServiceURL())
                     .withDetail("error", "HTTP " + e.getStatusCode().value() + ": " + e.getStatusText())
                     .withDetail("responseBody", e.getResponseBodyAsString())
                     .build();
         } catch (Exception e) {
-            log.warn("Order service health check failed: {}", e.getMessage());
+            log.warn("Product service health check failed: {}", e.getMessage());
             return Health.down()
-                    .withDetail("url", containerEnvironment.getPetStoreOrderServiceURL())
+                    .withDetail("url", containerEnvironment.getPetStoreProductServiceURL())
                     .withDetail("error", e.getMessage())
                     .withDetail("errorType", e.getClass().getSimpleName())
                     .build();

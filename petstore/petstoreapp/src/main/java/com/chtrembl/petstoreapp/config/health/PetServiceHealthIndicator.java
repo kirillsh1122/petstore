@@ -1,4 +1,4 @@
-package com.chtrembl.petstoreapp.config;
+package com.chtrembl.petstoreapp.config.health;
 
 import com.chtrembl.petstoreapp.model.ContainerEnvironment;
 import com.fasterxml.jackson.databind.JsonNode;
