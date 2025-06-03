@@ -69,11 +69,13 @@ class HealthMonitor {
         const components = data.components || {};
 
         // Analyze component statuses
-        const componentStatuses = Object.keys(components).map(key => ({
-            name: key,
-            status: components[key].status,
-            details: components[key].details
-        }));
+        const componentStatuses = Object.keys(components)
+            .filter(key => key !== 'refreshScope')
+            .map(key => ({
+                name: key,
+                status: components[key].status,
+                details: components[key].details
+            }));
 
         const upServices = componentStatuses.filter(c => c.status === 'UP');
         const downServices = componentStatuses.filter(c => c.status === 'DOWN');
