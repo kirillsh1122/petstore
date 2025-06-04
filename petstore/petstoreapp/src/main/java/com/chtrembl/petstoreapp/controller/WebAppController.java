@@ -4,7 +4,7 @@ import com.chtrembl.petstoreapp.model.ContainerEnvironment;
 import com.chtrembl.petstoreapp.model.Order;
 import com.chtrembl.petstoreapp.model.Pet;
 import com.chtrembl.petstoreapp.model.User;
-import com.chtrembl.petstoreapp.service.PetStoreService;
+import com.chtrembl.petstoreapp.service.PetStoreFacadeService;
 import com.microsoft.applicationinsights.telemetry.PageViewTelemetry;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public class WebAppController {
 	private static final String CURRENT_USERS_HUB = "currentUsers";
 
 	private final ContainerEnvironment containerEnvironment;
-	private final PetStoreService petStoreService;
+	private final PetStoreFacadeService petStoreService;
 	private final User sessionUser;
 	private final CacheManager currentUsersCacheManager;
 
@@ -106,7 +106,7 @@ public class WebAppController {
 
 	@GetMapping(value = "/login")
 	public String login(Model model, HttpServletRequest request) throws URISyntaxException {
-		log.info("PetStoreApp /login requested, routing to login view...");
+		log.debug("PetStoreApp /login requested, routing to login view...");
 
 		PageViewTelemetry pageViewTelemetry = new PageViewTelemetry();
 		pageViewTelemetry.setUrl(new URI(request.getRequestURL().toString()));
@@ -147,7 +147,7 @@ public class WebAppController {
 			}
 
 			Pet pet = this.sessionUser.getPets().get(id - 1);
-			log.info("PetStoreApp /breeddetails requested for {}, routing to dogbreeddetails view...", pet.getName());
+			log.debug("PetStoreApp /breeddetails requested for {}, routing to dogbreeddetails view...", pet.getName());
 			model.addAttribute("pet", pet);
 
 		} catch (Exception ex) {
@@ -169,14 +169,8 @@ public class WebAppController {
 		}
 
 		try {
-			log.info("PetStoreApp /products requested for {}, routing to products view...", category);
-
-			Collection<Pet> pets = this.petStoreService.getPets(category);
-			Pet pet = new Pet();
-			if (pets != null) {
-				pet = this.sessionUser.getPets().get(id - 1);
-			}
-
+			log.debug("PetStoreApp /products requested for {}, routing to products view...", category);
+			Pet pet = this.sessionUser.getPets().get(id - 1);
 			model.addAttribute("products",
 					this.petStoreService.getProducts(pet.getCategory().getName() + " " + category, pet.getTags()));
 		} catch (Exception ex) {
@@ -244,7 +238,7 @@ public class WebAppController {
 	@GetMapping(value = "/claims")
 	public String claims(Model model, OAuth2AuthenticationToken token, HttpServletRequest request)
 			throws URISyntaxException {
-		log.info("PetStoreApp /claims requested for {}, routing to claims view...", this.sessionUser.getName());
+		log.debug("PetStoreApp /claims requested for {}, routing to claims view...", this.sessionUser.getName());
 		return "claims";
 	}
 
