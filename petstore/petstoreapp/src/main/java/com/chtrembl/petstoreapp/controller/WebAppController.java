@@ -285,53 +285,20 @@ public class WebAppController {
 
 	private String extractUserEmail(OAuth2User user) {
 		try {
-			// Try Azure B2C "emails" claim first (ArrayList<String>)
 			Object emailsAttribute = user.getAttribute("emails");
-			if (emailsAttribute instanceof java.util.Collection) {
+			if (emailsAttribute instanceof Collection) {
 				@SuppressWarnings("unchecked")
-				java.util.Collection<String> emails = (java.util.Collection<String>) emailsAttribute;
+				Collection<String> emails = (Collection<String>) emailsAttribute;
 				if (!emails.isEmpty()) {
 					String email = emails.iterator().next();
 					log.debug("Found email from 'emails' collection: {}", email);
 					return email.trim();
 				}
 			}
-
-			// Try other possible email attribute names
-			String[] emailAttributeNames = {
-					"email",
-					"preferred_username",
-					"upn",
-					"signInNames.emailAddress",
-					"mail",
-					"userPrincipalName"
-			};
-
-			for (String attributeName : emailAttributeNames) {
-				Object emailValue = user.getAttribute(attributeName);
-				if (emailValue != null) {
-					String emailStr = emailValue.toString().trim();
-					if (!emailStr.isEmpty() && emailStr.contains("@")) {
-						log.debug("Found email from attribute '{}': {}", attributeName, emailStr);
-						return emailStr;
-					}
-				}
-			}
-
-			// Fallback: use subject ID as identifier
-			String sub = user.getAttribute("sub");
-			if (sub != null && !sub.trim().isEmpty()) {
-				String pseudoEmail = sub + "@b2c.internal";
-				log.warn("No email found, using subject ID as email identifier: {}", pseudoEmail);
-				return pseudoEmail;
-			}
-
 			log.warn("No email or subject ID found in OAuth2 attributes");
-
 		} catch (Exception e) {
 			log.warn("Error extracting email from OAuth2User: {}", e.getMessage(), e);
 		}
-
 		return null;
 	}
 }
