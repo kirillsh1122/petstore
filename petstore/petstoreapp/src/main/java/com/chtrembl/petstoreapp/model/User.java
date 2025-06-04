@@ -1,6 +1,6 @@
 package com.chtrembl.petstoreapp.model;
 
-import com.chtrembl.petstoreapp.service.TelemetryClient;
+import com.chtrembl.petstoreapp.telemetry.TelemetryClient;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,7 +39,7 @@ public class User {
 	@PostConstruct
 	private void initialize() {
 		if (this.telemetryClient == null) {
-			this.telemetryClient = new com.chtrembl.petstoreapp.service.TelemetryClient();
+			this.telemetryClient = new TelemetryClient();
 		}
 	}
 
