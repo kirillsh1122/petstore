@@ -46,7 +46,7 @@ public class Order {
 	private List<Product> products = new ArrayList<>();
 
 	@Schema(description = "Order status", example = "placed")
-	private StatusEnum status;
+	private Status status;
 
 	@Builder.Default
 	@Schema(description = "Whether the order is completed", example = "false")
@@ -71,14 +71,14 @@ public class Order {
 	/**
 	 * Order Status
 	 */
-	public enum StatusEnum {
+	public enum Status {
 		PLACED("placed"),
 		APPROVED("approved"),
 		DELIVERED("delivered");
 
 		private final String value;
 
-		StatusEnum(String value) {
+		Status(String value) {
 			this.value = value;
 		}
 
@@ -89,12 +89,12 @@ public class Order {
 		}
 
 		@JsonCreator
-		public static StatusEnum fromValue(String text) {
+		public static Status fromValue(String text) {
 			if (text == null) {
 				return null;
 			}
 
-			for (StatusEnum status : StatusEnum.values()) {
+			for (Status status : Status.values()) {
 				if (String.valueOf(status.value).equalsIgnoreCase(text.trim())) {
 					return status;
 				}

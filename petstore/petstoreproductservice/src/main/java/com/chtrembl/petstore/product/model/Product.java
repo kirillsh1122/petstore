@@ -34,27 +34,27 @@ public class Product {
     @Builder.Default
     private List<Tag> tags = new ArrayList<>();
 
-    private StatusEnum status;
+    private Status status;
 
     public Product name(String name) {
         this.name = name;
         return this;
     }
 
-    public enum StatusEnum {
+    public enum Status {
         AVAILABLE("available"),
         PENDING("pending"),
         SOLD("sold");
 
         private final String value;
 
-        StatusEnum(String value) {
+        Status(String value) {
             this.value = value;
         }
 
         @JsonCreator
-        public static StatusEnum fromValue(String value) {
-            for (StatusEnum b : StatusEnum.values()) {
+        public static Status fromValue(String value) {
+            for (Status b : Status.values()) {
                 if (b.value.equals(value)) {
                     return b;
                 }

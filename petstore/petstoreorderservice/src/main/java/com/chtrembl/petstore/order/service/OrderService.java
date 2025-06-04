@@ -30,7 +30,7 @@ public class OrderService {
         return Order.builder()
                 .id(orderId)
                 .products(new ArrayList<>())
-                .status(Order.StatusEnum.PLACED)
+                .status(Order.Status.PLACED)
                 .complete(false)
                 .build();
     }

@@ -18,49 +18,49 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class Pet {
-	private Long id;
+    private Long id;
 
     @Valid
-	private Category category;
+    private Category category;
 
     @NotNull
-	private String name;
+    private String name;
 
-	@JsonProperty("photoURL")
+    @JsonProperty("photoURL")
     @NotNull
-	private String photoURL;
+    private String photoURL;
 
-	@Valid
+    @Valid
     @Builder.Default
     private List<Tag> tags = new ArrayList<>();
 
-    private StatusEnum status;
+    private Status status;
 
     public Pet name(String name) {
         this.name = name;
         return this;
     }
 
-	public enum StatusEnum {
-		AVAILABLE("available"),
-		PENDING("pending"),
-		SOLD("sold");
+    public enum Status {
+        AVAILABLE("available"),
+        PENDING("pending"),
+        SOLD("sold");
 
         private final String value;
 
-		StatusEnum(String value) {
-			this.value = value;
-		}
+        Status(String value) {
+            this.value = value;
+        }
 
-		@JsonCreator
-		public static StatusEnum fromValue(String value) {
-			for (StatusEnum b : StatusEnum.values()) {
-				if (b.value.equals(value)) {
-					return b;
-				}
-			}
-			throw new IllegalArgumentException("Unexpected value '" + value + "'");
-		}
+        @JsonCreator
+        public static Status fromValue(String value) {
+            for (Status b : Status.values()) {
+                if (b.value.equals(value)) {
+                    return b;
+                }
+            }
+            throw new IllegalArgumentException("Unexpected value '" + value + "'");
+        }
 
         @JsonValue
         public String getValue() {
@@ -71,5 +71,5 @@ public class Pet {
         public String toString() {
             return String.valueOf(value);
         }
-	}
+    }
 }
