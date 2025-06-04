@@ -17,6 +17,12 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.chtrembl.petstoreapp.config.Constants.COMPLETE_ORDER;
+import static com.chtrembl.petstoreapp.config.Constants.OPERATION;
+import static com.chtrembl.petstoreapp.config.Constants.ORDER_ID;
+import static com.chtrembl.petstoreapp.config.Constants.PRODUCT_ID;
+import static com.chtrembl.petstoreapp.config.Constants.QUANTITY;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -26,10 +32,10 @@ public class OrderManagementService {
     private final OrderServiceClient orderServiceClient;
 
     public void updateOrder(long productId, int quantity, boolean completeOrder) {
-        MDC.put("operation", "updateOrder");
-        MDC.put("productId", String.valueOf(productId));
-        MDC.put("quantity", String.valueOf(quantity));
-        MDC.put("completeOrder", String.valueOf(completeOrder));
+        MDC.put(OPERATION, "updateOrder");
+        MDC.put(PRODUCT_ID, String.valueOf(productId));
+        MDC.put(QUANTITY, String.valueOf(quantity));
+        MDC.put(COMPLETE_ORDER, String.valueOf(completeOrder));
 
         this.sessionUser.getTelemetryClient()
                 .trackEvent(String.format(
@@ -57,8 +63,8 @@ public class OrderManagementService {
     }
 
     public Order retrieveOrder(String orderId) {
-        MDC.put("operation", "retrieveOrder");
-        MDC.put("orderId", orderId);
+        MDC.put(OPERATION, "retrieveOrder");
+        MDC.put(ORDER_ID, orderId);
 
         this.sessionUser.getTelemetryClient()
                 .trackEvent(String.format(
@@ -82,8 +88,8 @@ public class OrderManagementService {
             this.sessionUser.getTelemetryClient().trackException(e);
             throw new OrderServiceException("Unable to retrieve order from order service", e);
         } finally {
-            MDC.remove("operation");
-            MDC.remove("orderId");
+            MDC.remove(OPERATION);
+            MDC.remove(ORDER_ID);
         }
     }
 
@@ -124,9 +130,9 @@ public class OrderManagementService {
     }
 
     private void cleanupMDC() {
-        MDC.remove("operation");
-        MDC.remove("productId");
-        MDC.remove("quantity");
-        MDC.remove("completeOrder");
+        MDC.remove(OPERATION);
+        MDC.remove(PRODUCT_ID);
+        MDC.remove(QUANTITY);
+        MDC.remove(COMPLETE_ORDER);
     }
 }

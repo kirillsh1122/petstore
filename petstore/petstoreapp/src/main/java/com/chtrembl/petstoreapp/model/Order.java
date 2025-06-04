@@ -20,20 +20,20 @@ public class Order {
 	private String id;
 	private String email;
 	private List<Product> products;
-	private StatusEnum status;
+	private Status status;
 	private Boolean complete = false;
 
 	/**
 	 * Order Status
 	 */
-	public enum StatusEnum {
+	public enum Status {
 		PLACED("placed"),
 		APPROVED("approved"),
 		DELIVERED("delivered");
 
 		private final String value;
 
-		StatusEnum(String value) {
+		Status(String value) {
 			this.value = value;
 		}
 
@@ -44,8 +44,8 @@ public class Order {
 		}
 
 		@JsonCreator
-		public static StatusEnum fromValue(String text) {
-			for (StatusEnum b : StatusEnum.values()) {
+		public static Status fromValue(String text) {
+			for (Status b : Status.values()) {
 				if (String.valueOf(b.value).equals(text)) {
 					return b;
 				}

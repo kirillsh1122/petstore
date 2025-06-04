@@ -16,6 +16,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.chtrembl.petstoreapp.config.Constants.CATEGORY;
+import static com.chtrembl.petstoreapp.config.Constants.OPERATION;
+import static com.chtrembl.petstoreapp.model.Status.AVAILABLE;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -26,10 +30,10 @@ public class PetManagementService {
     private final PetServiceClient petServiceClient;
 
     public Collection<Pet> getPetsByCategory(String category) {
-        List<Pet> pets = new ArrayList<>();
+        List<Pet> pets;
 
-        MDC.put("operation", "getPets");
-        MDC.put("category", category);
+        MDC.put(OPERATION, "getPets");
+        MDC.put(CATEGORY, category);
 
         try {
             this.sessionUser.getTelemetryClient().trackEvent(
@@ -37,7 +41,7 @@ public class PetManagementService {
                             this.sessionUser.getName()),
                     this.sessionUser.getCustomEventProperties(), null);
 
-            pets = petServiceClient.getPetsByStatus("available");
+            pets = petServiceClient.getPetsByStatus(AVAILABLE.getValue());
             this.sessionUser.setPets(pets);
 
             pets = pets.stream()
@@ -62,8 +66,8 @@ public class PetManagementService {
             log.error("Unexpected error when retrieving pets", e);
             return createErrorPetCollection(e);
         } finally {
-            MDC.remove("operation");
-            MDC.remove("category");
+            MDC.remove(OPERATION);
+            MDC.remove(CATEGORY);
         }
     }
 

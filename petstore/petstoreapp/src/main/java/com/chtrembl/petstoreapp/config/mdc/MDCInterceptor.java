@@ -10,27 +10,27 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.UUID;
 
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.CLIENT_IP;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.EXCEPTION_MESSAGE;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.EXCEPTION_TYPE;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.HAS_EXCEPTION;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.PARENT_SPAN_ID;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.REFERER;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.REQUEST_DURATION;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.REQUEST_ID;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.REQUEST_METHOD;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.REQUEST_URI;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.RESPONSE_STATUS;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.SESSION_ID;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.SPAN_ID;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.TRACE_ID;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.USER_AGENT;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.X_CORRELATION_ID;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.X_PARENT_SPAN_ID;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.X_REQUEST_DURATION;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.X_REQUEST_ID;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.X_SPAN_ID;
-import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.X_TRACE_ID;
+import static com.chtrembl.petstoreapp.config.Constants.CLIENT_IP;
+import static com.chtrembl.petstoreapp.config.Constants.EXCEPTION_MESSAGE;
+import static com.chtrembl.petstoreapp.config.Constants.EXCEPTION_TYPE;
+import static com.chtrembl.petstoreapp.config.Constants.HAS_EXCEPTION;
+import static com.chtrembl.petstoreapp.config.Constants.PARENT_SPAN_ID;
+import static com.chtrembl.petstoreapp.config.Constants.REFERER;
+import static com.chtrembl.petstoreapp.config.Constants.REQUEST_DURATION;
+import static com.chtrembl.petstoreapp.config.Constants.REQUEST_ID;
+import static com.chtrembl.petstoreapp.config.Constants.REQUEST_METHOD;
+import static com.chtrembl.petstoreapp.config.Constants.REQUEST_URI;
+import static com.chtrembl.petstoreapp.config.Constants.RESPONSE_STATUS;
+import static com.chtrembl.petstoreapp.config.Constants.SESSION_ID;
+import static com.chtrembl.petstoreapp.config.Constants.SPAN_ID;
+import static com.chtrembl.petstoreapp.config.Constants.TRACE_ID;
+import static com.chtrembl.petstoreapp.config.Constants.USER_AGENT;
+import static com.chtrembl.petstoreapp.config.Constants.X_CORRELATION_ID;
+import static com.chtrembl.petstoreapp.config.Constants.X_PARENT_SPAN_ID;
+import static com.chtrembl.petstoreapp.config.Constants.X_REQUEST_DURATION;
+import static com.chtrembl.petstoreapp.config.Constants.X_REQUEST_ID;
+import static com.chtrembl.petstoreapp.config.Constants.X_SPAN_ID;
+import static com.chtrembl.petstoreapp.config.Constants.X_TRACE_ID;
 
 @Component
 @Slf4j

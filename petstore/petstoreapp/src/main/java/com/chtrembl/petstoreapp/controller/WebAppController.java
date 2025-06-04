@@ -28,6 +28,13 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Map;
 
+import static com.chtrembl.petstoreapp.config.Constants.AUTH_TYPE;
+import static com.chtrembl.petstoreapp.config.Constants.CONTAINER_HOST;
+import static com.chtrembl.petstoreapp.config.Constants.IS_AUTHENTICATED;
+import static com.chtrembl.petstoreapp.config.Constants.SESSION_ID;
+import static com.chtrembl.petstoreapp.config.Constants.USER_EMAIL;
+import static com.chtrembl.petstoreapp.config.Constants.USER_NAME;
+
 /**
  * Controller for the PetStore web application.
  * Handles requests for various pages and manages user sessions.
@@ -37,262 +44,289 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class WebAppController {
-	private static final String CURRENT_USERS_HUB = "currentUsers";
+    private static final String CURRENT_USERS_HUB = "currentUsers";
 
-	private final ContainerEnvironment containerEnvironment;
-	private final PetStoreFacadeService petStoreService;
-	private final User sessionUser;
-	private final CacheManager currentUsersCacheManager;
+    private static final String MODEL_APP_VERSION = "appVersion";
+    private static final String MODEL_CART_SIZE = "cartSize";
+    private static final String MODEL_CLAIMS = "claims";
+    private static final String MODEL_CONTAINER_ENVIRONMENT = "containerEnvironment";
+    private static final String MODEL_CURRENT_USERS_ON_SITE = "currentUsersOnSite";
+    private static final String MODEL_EMAIL = "email";
+    private static final String MODEL_ERROR = "error";
+    private static final String MODEL_GRANT_TYPE = "grant_type";
+    private static final String MODEL_ORDER = "order";
+    private static final String MODEL_PET = "pet";
+    private static final String MODEL_PETS = "pets";
+    private static final String MODEL_PRODUCTS = "products";
+    private static final String MODEL_SESSION_ID = "sessionId";
+    private static final String MODEL_STACKTRACE = "stacktrace";
+    private static final String MODEL_USER = "user";
+    private static final String MODEL_USER_LOGGED_IN = "userLoggedIn";
+    private static final String MODEL_USER_NAME = "userName";
 
-	@ModelAttribute
-	public void setModel(HttpServletRequest request, Model model, OAuth2AuthenticationToken token) {
+    private static final String VIEW_HOME = "home";
+    private static final String VIEW_LOGIN = "login";
+    private static final String VIEW_BREEDS = "breeds";
+    private static final String VIEW_BREED_DETAILS = "breeddetails";
+    private static final String VIEW_PRODUCTS = "products";
+    private static final String VIEW_CART = "cart";
+    private static final String VIEW_REDIRECT_CART = "redirect:cart";
+    private static final String VIEW_CLAIMS = "claims";
 
-		CaffeineCache caffeineCache = (CaffeineCache) this.currentUsersCacheManager
-				.getCache(CURRENT_USERS_HUB);
-		com.github.benmanes.caffeine.cache.Cache<Object, Object> nativeCache = caffeineCache.getNativeCache();
+    private final ContainerEnvironment containerEnvironment;
+    private final PetStoreFacadeService petStoreService;
+    private final User sessionUser;
+    private final CacheManager currentUsersCacheManager;
 
-		if (this.sessionUser.getSessionId() == null) {
-			String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
-			this.sessionUser.setSessionId(sessionId);
-			caffeineCache.put(this.sessionUser.getSessionId(), this.sessionUser.getName());
-		}
+    @ModelAttribute
+    public void setModel(HttpServletRequest request, Model model, OAuth2AuthenticationToken token) {
 
-		MDC.put("sessionId", this.sessionUser.getSessionId());
-		MDC.put("userName", this.sessionUser.getName());
-		MDC.put("containerHost", this.containerEnvironment.getContainerHostName());
+        CaffeineCache caffeineCache = (CaffeineCache) this.currentUsersCacheManager
+                .getCache(CURRENT_USERS_HUB);
+        com.github.benmanes.caffeine.cache.Cache<Object, Object> nativeCache = caffeineCache.getNativeCache();
 
-		caffeineCache.put(this.sessionUser.getSessionId(), this.sessionUser.getName());
+        if (sessionUser.getSessionId() == null) {
+            String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
+            sessionUser.setSessionId(sessionId);
+            caffeineCache.put(sessionUser.getSessionId(), sessionUser.getName());
+        }
 
-		if (token != null) {
-			final OAuth2User user = token.getPrincipal();
+        MDC.put(SESSION_ID, sessionUser.getSessionId());
+        MDC.put(USER_NAME, sessionUser.getName());
+        MDC.put(CONTAINER_HOST, this.containerEnvironment.getContainerHostName());
 
-			String userEmail = extractUserEmail(user);
-			if (userEmail != null) {
-				this.sessionUser.setEmail(userEmail);
-				MDC.put("userEmail", userEmail);
-				log.debug("User email set to: {}", userEmail);
-			} else {
-				log.warn("Could not extract email for user: {}", this.sessionUser.getName());
-			}
+        caffeineCache.put(sessionUser.getSessionId(), sessionUser.getName());
 
-			this.sessionUser.setName((String) user.getAttributes().get("name"));
-			MDC.put("userName", this.sessionUser.getName());
-			MDC.put("authType", "OAuth2");
-			MDC.put("isAuthenticated", "true");
+        if (token != null) {
+            final OAuth2User user = token.getPrincipal();
 
-			if (!this.sessionUser.isInitialTelemetryRecorded()) {
-				this.sessionUser.getTelemetryClient().trackEvent(
-						String.format("PetStoreApp %s logged in, container host: %s", this.sessionUser.getName(),
-								this.containerEnvironment.getContainerHostName()),
-						this.sessionUser.getCustomEventProperties(), null);
+            String userEmail = extractUserEmail(user);
+            if (userEmail != null) {
+                sessionUser.setEmail(userEmail);
+                MDC.put(USER_EMAIL, userEmail);
+                log.debug("User email set to: {}", userEmail);
+            } else {
+                log.warn("Could not extract email for user: {}", sessionUser.getName());
+            }
 
-				this.sessionUser.setInitialTelemetryRecorded(true);
-			}
-			model.addAttribute("claims", user.getAttributes());
-			model.addAttribute("user", this.sessionUser.getName());
-			model.addAttribute("grant_type", user.getAuthorities());
-		} else {
-			MDC.put("authType", "Anonymous");
-			MDC.put("isAuthenticated", "false");
-		}
+            sessionUser.setName((String) user.getAttributes().get("name"));
+            MDC.put(USER_NAME, sessionUser.getName());
+            MDC.put(AUTH_TYPE, "OAuth2");
+            MDC.put(IS_AUTHENTICATED, "true");
 
-		model.addAttribute("userName", this.sessionUser.getName());
-		model.addAttribute("containerEnvironment", this.containerEnvironment);
-		model.addAttribute("sessionId", this.sessionUser.getSessionId());
-		model.addAttribute("appVersion", this.containerEnvironment.getAppVersion());
-		model.addAttribute("cartSize", this.sessionUser.getCartCount());
-		model.addAttribute("currentUsersOnSite", nativeCache.asMap().size());
-	}
+            if (!sessionUser.isInitialTelemetryRecorded()) {
+                sessionUser.getTelemetryClient().trackEvent(
+                        String.format("PetStoreApp %s logged in, container host: %s", sessionUser.getName(),
+                                this.containerEnvironment.getContainerHostName()),
+                        sessionUser.getCustomEventProperties(), null);
 
-	@GetMapping(value = "/login")
-	public String login(Model model, HttpServletRequest request) throws URISyntaxException {
-		log.debug("PetStoreApp /login requested, routing to login view...");
+                sessionUser.setInitialTelemetryRecorded(true);
+            }
+            model.addAttribute(MODEL_CLAIMS, user.getAttributes());
+            model.addAttribute(MODEL_USER, sessionUser.getName());
+            model.addAttribute(MODEL_GRANT_TYPE, user.getAuthorities());
+        } else {
+            MDC.put(AUTH_TYPE, "Anonymous");
+            MDC.put(IS_AUTHENTICATED, "false");
+        }
 
-		PageViewTelemetry pageViewTelemetry = new PageViewTelemetry();
-		pageViewTelemetry.setUrl(new URI(request.getRequestURL().toString()));
-		pageViewTelemetry.setName("login");
-		this.sessionUser.getTelemetryClient().trackPageView(pageViewTelemetry);
-		return "login";
-	}
+        model.addAttribute(MODEL_USER_NAME, sessionUser.getName());
+        model.addAttribute(MODEL_CONTAINER_ENVIRONMENT, this.containerEnvironment);
+        model.addAttribute(MODEL_SESSION_ID, sessionUser.getSessionId());
+        model.addAttribute(MODEL_APP_VERSION, this.containerEnvironment.getAppVersion());
+        model.addAttribute(MODEL_CART_SIZE, sessionUser.getCartCount());
+        model.addAttribute(MODEL_CURRENT_USERS_ON_SITE, nativeCache.asMap().size());
+    }
 
-	@GetMapping(value = { "/dogbreeds", "/catbreeds", "/fishbreeds" })
-	public String breeds(Model model, OAuth2AuthenticationToken token, HttpServletRequest request,
-						 @RequestParam(name = "category") String category) throws URISyntaxException {
-		if (!"Dog".equals(category) && !"Cat".equals(category) && !"Fish".equals(category)) {
-			return "home";
-		}
-		try {
-			final Collection<Pet> pets = this.petStoreService.getPets(category);
-			model.addAttribute("pets", pets);
-		} catch (Exception ex) {
-			log.error("Error loading pets from service: ", ex);
-			model.addAttribute("error", "Sorry, we couldn't load pet breeds.");
-			model.addAttribute("stacktrace", getStackTrace(ex));
-		}
-		return "breeds";
-	}
+    @GetMapping(value = "/login")
+    public String login(Model model, HttpServletRequest request) throws URISyntaxException {
+        log.debug("PetStoreApp /login requested, routing to login view...");
 
-	@GetMapping(value = "/breeddetails")
-	public String breedeetails(Model model, OAuth2AuthenticationToken token, HttpServletRequest request,
-							   @RequestParam(name = "category") String category,
-							   @RequestParam(name = "id") int id) throws URISyntaxException {
+        PageViewTelemetry pageViewTelemetry = new PageViewTelemetry();
+        pageViewTelemetry.setUrl(new URI(request.getRequestURL().toString()));
+        pageViewTelemetry.setName("login");
+        sessionUser.getTelemetryClient().trackPageView(pageViewTelemetry);
+        return VIEW_LOGIN;
+    }
 
-		if (!"Dog".equals(category) && !"Cat".equals(category) && !"Fish".equals(category)) {
-			return "home";
-		}
+    @GetMapping(value = {"/dogbreeds", "/catbreeds", "/fishbreeds"})
+    public String breeds(Model model, OAuth2AuthenticationToken token, HttpServletRequest request,
+                         @RequestParam(name = "category") String category) throws URISyntaxException {
+        if (!"Dog".equals(category) && !"Cat".equals(category) && !"Fish".equals(category)) {
+            return VIEW_HOME;
+        }
+        try {
+            final Collection<Pet> pets = this.petStoreService.getPets(category);
+            model.addAttribute(MODEL_PETS, pets);
+        } catch (Exception ex) {
+            log.error("Error loading pets from service: ", ex);
+            model.addAttribute(MODEL_ERROR, "Sorry, we couldn't load pet breeds.");
+            model.addAttribute(MODEL_STACKTRACE, getStackTrace(ex));
+        }
+        return VIEW_BREEDS;
+    }
 
-		try {
-			if (this.sessionUser.getPets() == null) {
-				this.petStoreService.getPets(category);
-			}
+    @GetMapping(value = "/breeddetails")
+    public String breedeetails(Model model, OAuth2AuthenticationToken token, HttpServletRequest request,
+                               @RequestParam(name = "category") String category,
+                               @RequestParam(name = "id") int id) throws URISyntaxException {
 
-			Pet pet = this.sessionUser.getPets().get(id - 1);
-			log.debug("PetStoreApp /breeddetails requested for {}, routing to dogbreeddetails view...", pet.getName());
-			model.addAttribute("pet", pet);
+        if (!"Dog".equals(category) && !"Cat".equals(category) && !"Fish".equals(category)) {
+            return VIEW_HOME;
+        }
 
-		} catch (Exception ex) {
-			log.error("Error loading pet details: ", ex);
-			model.addAttribute("error", "Sorry, we couldn't load pet details.");
-			model.addAttribute("stacktrace", getStackTrace(ex));
-		}
+        try {
+            if (sessionUser.getPets() == null) {
+                this.petStoreService.getPets(category);
+            }
 
-		return "breeddetails";
-	}
+            Pet pet = sessionUser.getPets().get(id - 1);
+            log.debug("PetStoreApp /breeddetails requested for {}, routing to dogbreeddetails view...", pet.getName());
+            model.addAttribute(MODEL_PET, pet);
 
-	@GetMapping(value = "/products")
-	public String products(Model model, OAuth2AuthenticationToken token, HttpServletRequest request,
-						   @RequestParam(name = "category") String category,
-						   @RequestParam(name = "id") int id) throws URISyntaxException {
+        } catch (Exception ex) {
+            log.error("Error loading pet details: ", ex);
+            model.addAttribute(MODEL_ERROR, "Sorry, we couldn't load pet details.");
+            model.addAttribute(MODEL_STACKTRACE, getStackTrace(ex));
+        }
 
-		if (!"Toy".equals(category) && !"Food".equals(category)) {
-			return "home";
-		}
+        return VIEW_BREED_DETAILS;
+    }
 
-		try {
-			log.debug("PetStoreApp /products requested for {}, routing to products view...", category);
-			Pet pet = this.sessionUser.getPets().get(id - 1);
-			model.addAttribute("products",
-					this.petStoreService.getProducts(pet.getCategory().getName() + " " + category, pet.getTags()));
-		} catch (Exception ex) {
-			log.error("Error loading products: ", ex);
-			model.addAttribute("error", "Sorry, we couldn't load products.");
-			model.addAttribute("stacktrace", getStackTrace(ex));
-		}
+    @GetMapping(value = "/products")
+    public String products(Model model, OAuth2AuthenticationToken token, HttpServletRequest request,
+                           @RequestParam(name = "category") String category,
+                           @RequestParam(name = "id") int id) throws URISyntaxException {
 
-		return "products";
-	}
+        if (!"Toy".equals(category) && !"Food".equals(category)) {
+            return VIEW_HOME;
+        }
 
-	@GetMapping(value = "/cart")
-	public String cart(Model model, OAuth2AuthenticationToken token, HttpServletRequest request) {
-		try {
-			Order order = this.petStoreService.retrieveOrder(this.sessionUser.getSessionId());
-			model.addAttribute("order", order);
+        try {
+            log.debug("PetStoreApp /products requested for {}, routing to products view...", category);
+            Pet pet = sessionUser.getPets().get(id - 1);
+            model.addAttribute(MODEL_PRODUCTS,
+                    this.petStoreService.getProducts(pet.getCategory().getName() + " " + category, pet.getTags()));
+        } catch (Exception ex) {
+            log.error("Error loading products: ", ex);
+            model.addAttribute(MODEL_ERROR, "Sorry, we couldn't load products.");
+            model.addAttribute(MODEL_STACKTRACE, getStackTrace(ex));
+        }
 
-			int cartSize = 0;
-			if (order != null && order.getProducts() != null && !order.isComplete()) {
-				cartSize = order.getProducts().size();
-			}
-			this.sessionUser.setCartCount(cartSize);
-			model.addAttribute("cartSize", this.sessionUser.getCartCount());
+        return VIEW_PRODUCTS;
+    }
 
-			if (token != null) {
-				model.addAttribute("userLoggedIn", true);
-				model.addAttribute("email", this.sessionUser.getEmail());
-			}
+    @GetMapping(value = "/cart")
+    public String cart(Model model, OAuth2AuthenticationToken token, HttpServletRequest request) {
+        try {
+            Order order = this.petStoreService.retrieveOrder(sessionUser.getSessionId());
+            model.addAttribute(MODEL_ORDER, order);
 
-		} catch (Exception ex) {
-			log.error("Error loading cart: ", ex);
-			model.addAttribute("error", "Sorry, we couldn't load your cart.");
-			model.addAttribute("stacktrace", getStackTrace(ex));
-		}
+            int cartSize = 0;
+            if (order != null && order.getProducts() != null && !order.isComplete()) {
+                cartSize = order.getProducts().size();
+            }
+            sessionUser.setCartCount(cartSize);
+            model.addAttribute(MODEL_CART_SIZE, sessionUser.getCartCount());
 
-		return "cart";
-	}
+            if (token != null) {
+                model.addAttribute(MODEL_USER_LOGGED_IN, true);
+                model.addAttribute(MODEL_EMAIL, sessionUser.getEmail());
+            }
 
-	@PostMapping(value = "/updatecart")
-	public String updateCart(Model model, OAuth2AuthenticationToken token, HttpServletRequest request,
-							 @RequestParam Map<String, String> params) {
-		int cartCount = 1;
+        } catch (Exception ex) {
+            log.error("Error loading cart: ", ex);
+            model.addAttribute(MODEL_ERROR, "Sorry, we couldn't load your cart.");
+            model.addAttribute(MODEL_STACKTRACE, getStackTrace(ex));
+        }
 
-		String operator = params.get("operator");
-		if (StringUtils.isNotEmpty(operator)) {
-			if ("minus".equals(operator)) {
-				cartCount = -1;
-			} else if ("remove".equals(operator)) {
-				cartCount = -999;
-			}
-		}
+        return VIEW_CART;
+    }
 
-		this.petStoreService.updateOrder(Long.parseLong(params.get("productId")), cartCount, false);
-		return "redirect:cart";
-	}
+    @PostMapping(value = "/updatecart")
+    public String updateCart(Model model, OAuth2AuthenticationToken token, HttpServletRequest request,
+                             @RequestParam Map<String, String> params) {
+        int cartCount = 1;
 
-	@PostMapping(value = "/completecart")
-	public String updateCart(Model model, OAuth2AuthenticationToken token, HttpServletRequest request) {
-		if (token != null) {
-			this.petStoreService.updateOrder(0, 0, true);
-		}
-		return "redirect:cart";
-	}
+        String operator = params.get("operator");
+        if (StringUtils.isNotEmpty(operator)) {
+            if ("minus".equals(operator)) {
+                cartCount = -1;
+            } else if ("remove".equals(operator)) {
+                cartCount = -999;
+            }
+        }
 
-	@GetMapping(value = "/claims")
-	public String claims(Model model, OAuth2AuthenticationToken token, HttpServletRequest request)
-			throws URISyntaxException {
-		log.debug("PetStoreApp /claims requested for {}, routing to claims view...", this.sessionUser.getName());
-		return "claims";
-	}
+        this.petStoreService.updateOrder(Long.parseLong(params.get("productId")), cartCount, false);
+        return VIEW_REDIRECT_CART;
+    }
 
-	@GetMapping("/fail")
-	public String fail() {
-		throw new RuntimeException("Test 500 error");
-	}
+    @PostMapping(value = "/completecart")
+    public String updateCart(Model model, OAuth2AuthenticationToken token, HttpServletRequest request) {
+        if (token != null) {
+            this.petStoreService.updateOrder(0, 0, true);
+        }
+        return VIEW_REDIRECT_CART;
+    }
 
-	@GetMapping(value = {"/", "/home.htm*", "/index.htm*"})
-	public String landing(Model model, OAuth2AuthenticationToken token, HttpServletRequest request)
-			throws URISyntaxException {
-		return "home";
-	}
+    @GetMapping(value = "/claims")
+    public String claims(Model model, OAuth2AuthenticationToken token, HttpServletRequest request)
+            throws URISyntaxException {
+        log.debug("PetStoreApp /claims requested for {}, routing to claims view...", sessionUser.getName());
+        return VIEW_CLAIMS;
+    }
 
-	private String getStackTrace(Throwable throwable) {
-		StringBuilder sb = new StringBuilder();
-		appendStackTrace(sb, throwable, "");
-		return sb.toString();
-	}
+    @GetMapping("/fail")
+    public String fail() {
+        throw new RuntimeException("Test 500 error");
+    }
 
-	private void appendStackTrace(StringBuilder sb, Throwable throwable, String prefix) {
-		if (throwable == null) return;
+    @GetMapping(value = {"/", "/home.htm*", "/index.htm*"})
+    public String landing(Model model, OAuth2AuthenticationToken token, HttpServletRequest request)
+            throws URISyntaxException {
+        return VIEW_HOME;
+    }
 
-		sb.append(prefix).append(throwable.toString()).append("\n");
-		for (StackTraceElement element : throwable.getStackTrace()) {
-			sb.append("\tat ").append(element).append("\n");
-		}
+    private String getStackTrace(Throwable throwable) {
+        StringBuilder sb = new StringBuilder();
+        appendStackTrace(sb, throwable, "");
+        return sb.toString();
+    }
 
-		for (Throwable suppressed : throwable.getSuppressed()) {
-			appendStackTrace(sb, suppressed, "Suppressed: ");
-		}
+    private void appendStackTrace(StringBuilder sb, Throwable throwable, String prefix) {
+        if (throwable == null) return;
 
-		Throwable cause = throwable.getCause();
-		if (cause != null && cause != throwable) {
-			appendStackTrace(sb, cause, "Caused by: ");
-		}
-	}
+        sb.append(prefix).append(throwable.toString()).append("\n");
+        for (StackTraceElement element : throwable.getStackTrace()) {
+            sb.append("\tat ").append(element).append("\n");
+        }
 
-	private String extractUserEmail(OAuth2User user) {
-		try {
-			Object emailsAttribute = user.getAttribute("emails");
-			if (emailsAttribute instanceof Collection) {
-				@SuppressWarnings("unchecked")
-				Collection<String> emails = (Collection<String>) emailsAttribute;
-				if (!emails.isEmpty()) {
-					String email = emails.iterator().next();
-					log.debug("Found email from 'emails' collection: {}", email);
-					return email.trim();
-				}
-			}
-			log.warn("No email or subject ID found in OAuth2 attributes");
-		} catch (Exception e) {
-			log.warn("Error extracting email from OAuth2User: {}", e.getMessage(), e);
-		}
-		return null;
-	}
+        for (Throwable suppressed : throwable.getSuppressed()) {
+            appendStackTrace(sb, suppressed, "Suppressed: ");
+        }
+
+        Throwable cause = throwable.getCause();
+        if (cause != null && cause != throwable) {
+            appendStackTrace(sb, cause, "Caused by: ");
+        }
+    }
+
+    private String extractUserEmail(OAuth2User user) {
+        try {
+            Object emailsAttribute = user.getAttribute("emails");
+            if (emailsAttribute instanceof Collection) {
+                @SuppressWarnings("unchecked")
+                Collection<String> emails = (Collection<String>) emailsAttribute;
+                if (!emails.isEmpty()) {
+                    String email = emails.iterator().next();
+                    log.debug("Found email from 'emails' collection: {}", email);
+                    return email.trim();
+                }
+            }
+            log.warn("No email or subject ID found in OAuth2 attributes");
+        } catch (Exception e) {
+            log.warn("Error extracting email from OAuth2User: {}", e.getMessage(), e);
+        }
+        return null;
+    }
 }

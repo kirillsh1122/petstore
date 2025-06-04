@@ -15,6 +15,10 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.List;
 
+import static com.chtrembl.petstoreapp.config.Constants.CATEGORY;
+import static com.chtrembl.petstoreapp.config.Constants.OPERATION;
+import static com.chtrembl.petstoreapp.model.Status.AVAILABLE;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -27,8 +31,8 @@ public class ProductManagementService {
     public Collection<Product> getProductsByCategory(String category, List<Tag> tags) {
         List<Product> products;
 
-        MDC.put("operation", "getProducts");
-        MDC.put("category", category);
+        MDC.put(OPERATION, "getProducts");
+        MDC.put(CATEGORY, category);
 
         try {
             this.sessionUser.getTelemetryClient().trackEvent(
@@ -36,7 +40,7 @@ public class ProductManagementService {
                             this.sessionUser.getName()),
                     this.sessionUser.getCustomEventProperties(), null);
 
-            products = productServiceClient.getProductsByStatus("available");
+            products = productServiceClient.getProductsByStatus(AVAILABLE.getValue());
             this.sessionUser.setProducts(products);
 
             if (tags.stream().anyMatch(t -> t.getName().equals("large"))) {
@@ -67,8 +71,8 @@ public class ProductManagementService {
             log.error("Failed to retrieve products from ProductService via Feign client", fe);
             throw new ProductServiceException("Unable to retrieve products from product service", fe);
         } finally {
-            MDC.remove("operation");
-            MDC.remove("category");
+            MDC.remove(OPERATION);
+            MDC.remove(CATEGORY);
         }
     }
 }
