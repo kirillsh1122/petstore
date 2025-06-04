@@ -1,4 +1,4 @@
-package com.chtrembl.petstoreapp.config;
+package com.chtrembl.petstoreapp.config.mdc;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,26 +10,31 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.UUID;
 
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.CLIENT_IP;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.EXCEPTION_MESSAGE;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.EXCEPTION_TYPE;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.HAS_EXCEPTION;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.PARENT_SPAN_ID;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.REFERER;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.REQUEST_DURATION;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.REQUEST_ID;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.REQUEST_METHOD;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.REQUEST_URI;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.RESPONSE_STATUS;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.SESSION_ID;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.SPAN_ID;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.TRACE_ID;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.USER_AGENT;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.X_CORRELATION_ID;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.X_PARENT_SPAN_ID;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.X_REQUEST_DURATION;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.X_REQUEST_ID;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.X_SPAN_ID;
+import static com.chtrembl.petstoreapp.config.mdc.MDCConstants.X_TRACE_ID;
+
 @Component
 @Slf4j
 public class MDCInterceptor implements HandlerInterceptor {
-
-    private static final String REQUEST_ID = "requestId";
-    private static final String REQUEST_URI = "requestURI";
-    private static final String REQUEST_METHOD = "requestMethod";
-    private static final String SESSION_ID = "sessionId";
-    private static final String RESPONSE_STATUS = "responseStatus";
-    private static final String HAS_EXCEPTION = "hasException";
-
-    private static final String TRACE_ID = "traceId";
-    private static final String SPAN_ID = "spanId";
-    private static final String PARENT_SPAN_ID = "parentSpanId";
-
-    private static final String X_REQUEST_ID = "X-Request-ID";
-    private static final String X_CORRELATION_ID = "X-Correlation-ID";
-    private static final String X_TRACE_ID = "X-Trace-ID";
-    private static final String X_SPAN_ID = "X-Span-ID";
-    private static final String X_PARENT_SPAN_ID = "X-Parent-Span-ID";
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
@@ -66,19 +71,19 @@ public class MDCInterceptor implements HandlerInterceptor {
             Long startTime = (Long) request.getAttribute("startTime");
             if (startTime != null) {
                 long duration = System.currentTimeMillis() - startTime;
-                MDC.put("requestDuration", String.valueOf(duration));
+                MDC.put(REQUEST_DURATION, String.valueOf(duration));
 
-                response.setHeader("X-Request-Duration", String.valueOf(duration));
+                response.setHeader(X_REQUEST_DURATION, String.valueOf(duration));
             }
 
             if (ex != null) {
                 MDC.put(HAS_EXCEPTION, "true");
-                MDC.put("exceptionType", ex.getClass().getSimpleName());
-                MDC.put("exceptionMessage", ex.getMessage());
+                MDC.put(EXCEPTION_TYPE, ex.getClass().getSimpleName());
+                MDC.put(EXCEPTION_MESSAGE, ex.getMessage());
                 log.error("Request completed with exception [RequestID: {}]", MDC.get(REQUEST_ID), ex);
             } else {
                 log.debug("Request completed successfully [RequestID: {}, Status: {}, Duration: {}ms]",
-                        MDC.get(REQUEST_ID), response.getStatus(), MDC.get("requestDuration"));
+                        MDC.get(REQUEST_ID), response.getStatus(), MDC.get(REQUEST_DURATION));
             }
 
             addTracingHeadersToResponse(response);
@@ -145,17 +150,17 @@ public class MDCInterceptor implements HandlerInterceptor {
     private void addClientInfo(HttpServletRequest request) {
         String userAgent = request.getHeader("User-Agent");
         if (StringUtils.hasText(userAgent)) {
-            MDC.put("userAgent", userAgent);
+            MDC.put(USER_AGENT, userAgent);
         }
 
         String clientIp = getClientIpAddress(request);
         if (StringUtils.hasText(clientIp)) {
-            MDC.put("clientIp", clientIp);
+            MDC.put(CLIENT_IP, clientIp);
         }
 
         String referer = request.getHeader("Referer");
         if (StringUtils.hasText(referer)) {
-            MDC.put("referer", referer);
+            MDC.put(REFERER, referer);
         }
     }
 

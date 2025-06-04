@@ -1,5 +1,6 @@
 package com.chtrembl.petstoreapp.config;
 
+import com.chtrembl.petstoreapp.config.mdc.MDCInterceptor;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
