@@ -5,6 +5,17 @@
 The source code is available [here](../../../petstore).
 
 > **NOTE:** For the deployment of services in this and all subsequent tasks, you may choose to use either **Azure App Services or Azure Container Apps** (the diagrams will depict App Services).
+>
+> ### ⚠️ **CRITICAL NOTICE FOR AZURE CONTAINER APPS**
+>
+> If you choose to deploy using **Azure Container Apps**, please be aware that Container Apps currently do **NOT**
+> support the out-of-the-box Application Insights Java agent auto-instrumentation.
+>
+> **📋 Recommendation:**
+> - **If you're not confident in your abilities and don't want to complicate your life** - use Azure App Services for
+    this module, as it provides automatic Application Insights instrumentation.
+> - If you still decide to proceed with Container Apps, be prepared for additional setup steps not covered in the basic
+    instructions below.
 
 **Please complete the following task:**
 
