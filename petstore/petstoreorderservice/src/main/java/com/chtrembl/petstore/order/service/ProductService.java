@@ -35,8 +35,8 @@ public class ProductService {
 
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
-            headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+            headers.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
             HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
 
@@ -47,11 +47,14 @@ public class ProductService {
                     String.class
             );
 
-            return objectMapper.readValue(response.getBody(), new TypeReference<List<Product>>() {
+            List<Product> products = objectMapper.readValue(response.getBody(), new TypeReference<>() {
             });
 
+            log.info("Successfully retrieved {} products from product service", products.size());
+            return products;
+
         } catch (Exception e) {
-            log.error("Error retrieving products from product service: {}", e.getMessage());
+            log.error("Error retrieving products from product service: {}", e.getMessage(), e);
             return List.of(); // Return empty list on error
         }
     }

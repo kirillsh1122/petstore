@@ -47,3 +47,9 @@ spring:
           # Enable this together with 'petstore.service.security.enabled = true' in Module 10
           enabled: ${PETSTOREAPP_B2C_ENABLED:false}
           # Add base-uri, client-id, client-secret, login-flow, logout-success-url, and user-flows
+logging:
+  level:
+    root: INFO
+    com.chtrembl.petstoreapp: INFO
+    com.azure.monitor.opentelemetry.autoconfigure.implementation.quickpulse.QuickPulsePingSender: ERROR
+    com.azure.core.http.netty.NettyAsyncHttpClient: ERROR

@@ -18,6 +18,8 @@ import java.util.List;
 
 import static com.chtrembl.petstoreapp.config.Constants.CATEGORY;
 import static com.chtrembl.petstoreapp.config.Constants.OPERATION;
+import static com.chtrembl.petstoreapp.config.Constants.REQUEST_ID;
+import static com.chtrembl.petstoreapp.config.Constants.TRACE_ID;
 import static com.chtrembl.petstoreapp.model.Status.AVAILABLE;
 
 @Service
@@ -35,6 +37,12 @@ public class PetManagementService {
         MDC.put(OPERATION, "getPets");
         MDC.put(CATEGORY, category);
 
+        String requestId = MDC.get(REQUEST_ID);
+        String traceId = MDC.get(TRACE_ID);
+
+        log.info("Starting pet retrieval operation [RequestID: {}, TraceID: {}, Category: {}]",
+                requestId, traceId, category);
+        
         try {
             this.sessionUser.getTelemetryClient().trackEvent(
                     String.format("PetStoreApp user %s is requesting to retrieve pets from the PetStorePetService",
@@ -48,10 +56,14 @@ public class PetManagementService {
                     .filter(pet -> category.equals(pet.getCategory().getName()))
                     .toList();
 
-            log.info("Successfully retrieved {} pets for category {}", pets.size(), category);
+            log.info("Successfully retrieved {} pets for category {} [RequestID: {}, TraceID: {}]",
+                    pets.size(), category, requestId, traceId);
 
             return pets;
         } catch (FeignException fe) {
+            log.error("Feign error retrieving pets [RequestID: {}, TraceID: {}, Category: {}, HTTP: {}, Message: {}]",
+                    requestId, traceId, category, fe.status(), fe.getMessage(), fe);
+
             this.sessionUser.getTelemetryClient().trackException(fe);
             this.sessionUser.getTelemetryClient().trackEvent(
                     String.format("PetStoreApp %s received Feign error %s (HTTP %d), container host: %s",
@@ -63,7 +75,8 @@ public class PetManagementService {
             log.error("Failed to retrieve pets from PetStorePetService via Feign client", fe);
             throw new PetServiceException("Unable to retrieve pets from the PetStorePetService", fe);
         } catch (Exception e) {
-            log.error("Unexpected error when retrieving pets", e);
+            log.error("Unexpected error when retrieving pets [RequestID: {}, TraceID: {}, Category: {}]",
+                    requestId, traceId, category, e);
             return createErrorPetCollection(e);
         } finally {
             MDC.remove(OPERATION);

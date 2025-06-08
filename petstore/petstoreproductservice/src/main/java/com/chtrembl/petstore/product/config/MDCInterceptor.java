@@ -1,4 +1,4 @@
-package com.chtrembl.petstoreapp.config.mdc;
+package com.chtrembl.petstore.product.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,27 +10,34 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.UUID;
 
-import static com.chtrembl.petstoreapp.config.Constants.CLIENT_IP;
-import static com.chtrembl.petstoreapp.config.Constants.EXCEPTION_MESSAGE;
-import static com.chtrembl.petstoreapp.config.Constants.EXCEPTION_TYPE;
-import static com.chtrembl.petstoreapp.config.Constants.HAS_EXCEPTION;
-import static com.chtrembl.petstoreapp.config.Constants.PARENT_SPAN_ID;
-import static com.chtrembl.petstoreapp.config.Constants.REFERER;
-import static com.chtrembl.petstoreapp.config.Constants.REQUEST_DURATION;
-import static com.chtrembl.petstoreapp.config.Constants.REQUEST_ID;
-import static com.chtrembl.petstoreapp.config.Constants.REQUEST_METHOD;
-import static com.chtrembl.petstoreapp.config.Constants.REQUEST_URI;
-import static com.chtrembl.petstoreapp.config.Constants.RESPONSE_STATUS;
-import static com.chtrembl.petstoreapp.config.Constants.SESSION_ID;
-import static com.chtrembl.petstoreapp.config.Constants.SPAN_ID;
-import static com.chtrembl.petstoreapp.config.Constants.TRACE_ID;
-import static com.chtrembl.petstoreapp.config.Constants.USER_AGENT;
-import static com.chtrembl.petstoreapp.config.Constants.X_CORRELATION_ID;
-import static com.chtrembl.petstoreapp.config.Constants.X_PARENT_SPAN_ID;
-import static com.chtrembl.petstoreapp.config.Constants.X_REQUEST_DURATION;
-import static com.chtrembl.petstoreapp.config.Constants.X_REQUEST_ID;
-import static com.chtrembl.petstoreapp.config.Constants.X_SPAN_ID;
-import static com.chtrembl.petstoreapp.config.Constants.X_TRACE_ID;
+import static com.chtrembl.petstore.product.config.Constants.CLIENT_IP;
+import static com.chtrembl.petstore.product.config.Constants.HTTP_X_FORWARDED_FOR;
+import static com.chtrembl.petstore.product.config.Constants.PARENT_SPAN_ID;
+import static com.chtrembl.petstore.product.config.Constants.PROXY_CLIENT_IP;
+import static com.chtrembl.petstore.product.config.Constants.REQUEST_DURATION;
+import static com.chtrembl.petstore.product.config.Constants.REQUEST_ID;
+import static com.chtrembl.petstore.product.config.Constants.REQUEST_METHOD;
+import static com.chtrembl.petstore.product.config.Constants.REQUEST_URI;
+import static com.chtrembl.petstore.product.config.Constants.RESPONSE_STATUS;
+import static com.chtrembl.petstore.product.config.Constants.SESSION_ID;
+import static com.chtrembl.petstore.product.config.Constants.SPAN_ID;
+import static com.chtrembl.petstore.product.config.Constants.TRACE_ID;
+import static com.chtrembl.petstore.product.config.Constants.USER_AGENT;
+import static com.chtrembl.petstore.product.config.Constants.USER_AGENT_HEADER;
+import static com.chtrembl.petstore.product.config.Constants.WL_PROXY_CLIENT_IP;
+import static com.chtrembl.petstore.product.config.Constants.X_CORRELATION_ID;
+import static com.chtrembl.petstore.product.config.Constants.X_FORWARDED_FOR;
+import static com.chtrembl.petstore.product.config.Constants.X_PARENT_SPAN_ID;
+import static com.chtrembl.petstore.product.config.Constants.X_REAL_IP;
+import static com.chtrembl.petstore.product.config.Constants.X_REQUEST_DURATION;
+import static com.chtrembl.petstore.product.config.Constants.X_REQUEST_ID;
+import static com.chtrembl.petstore.product.config.Constants.X_RESPONSE_REQUEST_ID;
+import static com.chtrembl.petstore.product.config.Constants.X_RESPONSE_SPAN_ID;
+import static com.chtrembl.petstore.product.config.Constants.X_RESPONSE_TRACE_ID;
+import static com.chtrembl.petstore.product.config.Constants.X_SESSION_ID;
+import static com.chtrembl.petstore.product.config.Constants.X_SESSION_ID_LOWERCASE;
+import static com.chtrembl.petstore.product.config.Constants.X_SPAN_ID;
+import static com.chtrembl.petstore.product.config.Constants.X_TRACE_ID;
 
 @Component
 @Slf4j
@@ -77,9 +84,6 @@ public class MDCInterceptor implements HandlerInterceptor {
             }
 
             if (ex != null) {
-                MDC.put(HAS_EXCEPTION, "true");
-                MDC.put(EXCEPTION_TYPE, ex.getClass().getSimpleName());
-                MDC.put(EXCEPTION_MESSAGE, ex.getMessage());
                 log.error("Request completed with exception [RequestID: {}]", MDC.get(REQUEST_ID), ex);
             } else {
                 log.debug("Request completed successfully [RequestID: {}, Status: {}, Duration: {}ms]",
@@ -96,19 +100,15 @@ public class MDCInterceptor implements HandlerInterceptor {
     private String extractOrGenerateRequestId(HttpServletRequest request) {
         String requestId = request.getHeader(X_REQUEST_ID);
         if (StringUtils.hasText(requestId)) {
-            log.debug("Using incoming request ID: {}", requestId);
             return requestId;
         }
 
         requestId = request.getHeader(X_CORRELATION_ID);
         if (StringUtils.hasText(requestId)) {
-            log.debug("Using incoming correlation ID as request ID: {}", requestId);
             return requestId;
         }
 
-        requestId = UUID.randomUUID().toString().substring(0, 8);
-        log.debug("Generated new request ID: {}", requestId);
-        return requestId;
+        return UUID.randomUUID().toString().substring(0, 8);
     }
 
     private void handleDistributedTracing(HttpServletRequest request, HttpServletResponse response) {
@@ -131,14 +131,14 @@ public class MDCInterceptor implements HandlerInterceptor {
         if (StringUtils.hasText(parentSpanId)) {
             response.setHeader(X_PARENT_SPAN_ID, parentSpanId);
         }
-
-        log.debug("Distributed tracing setup [TraceID: {}, SpanID: {}, ParentSpanID: {}]",
-                traceId, spanId, parentSpanId);
     }
 
     private void addSessionInfo(HttpServletRequest request) {
         try {
-            String sessionId = request.getSession().getId();
+            String sessionId = request.getHeader(X_SESSION_ID);
+            if (!StringUtils.hasText(sessionId)) {
+                sessionId = request.getHeader(X_SESSION_ID_LOWERCASE);
+            }
             if (StringUtils.hasText(sessionId)) {
                 MDC.put(SESSION_ID, sessionId);
             }
@@ -148,7 +148,7 @@ public class MDCInterceptor implements HandlerInterceptor {
     }
 
     private void addClientInfo(HttpServletRequest request) {
-        String userAgent = request.getHeader("User-Agent");
+        String userAgent = request.getHeader(USER_AGENT_HEADER);
         if (StringUtils.hasText(userAgent)) {
             MDC.put(USER_AGENT, userAgent);
         }
@@ -156,11 +156,6 @@ public class MDCInterceptor implements HandlerInterceptor {
         String clientIp = getClientIpAddress(request);
         if (StringUtils.hasText(clientIp)) {
             MDC.put(CLIENT_IP, clientIp);
-        }
-
-        String referer = request.getHeader("Referer");
-        if (StringUtils.hasText(referer)) {
-            MDC.put(REFERER, referer);
         }
     }
 
@@ -170,30 +165,20 @@ public class MDCInterceptor implements HandlerInterceptor {
         String requestId = MDC.get(REQUEST_ID);
 
         if (StringUtils.hasText(traceId)) {
-            response.setHeader("X-Response-Trace-ID", traceId);
+            response.setHeader(X_RESPONSE_TRACE_ID, traceId);
         }
         if (StringUtils.hasText(spanId)) {
-            response.setHeader("X-Response-Span-ID", spanId);
+            response.setHeader(X_RESPONSE_SPAN_ID, spanId);
         }
         if (StringUtils.hasText(requestId)) {
-            response.setHeader("X-Response-Request-ID", requestId);
+            response.setHeader(X_RESPONSE_REQUEST_ID, requestId);
         }
     }
 
     private String getClientIpAddress(HttpServletRequest request) {
         String[] headerNames = {
-                "X-Forwarded-For",
-                "X-Real-IP",
-                "Proxy-Client-IP",
-                "WL-Proxy-Client-IP",
-                "HTTP_X_FORWARDED_FOR",
-                "HTTP_X_FORWARDED",
-                "HTTP_X_CLUSTER_CLIENT_IP",
-                "HTTP_CLIENT_IP",
-                "HTTP_FORWARDED_FOR",
-                "HTTP_FORWARDED",
-                "HTTP_VIA",
-                "REMOTE_ADDR"
+                X_FORWARDED_FOR, X_REAL_IP, PROXY_CLIENT_IP,
+                WL_PROXY_CLIENT_IP, HTTP_X_FORWARDED_FOR
         };
 
         for (String header : headerNames) {

@@ -1,7 +1,6 @@
 package com.chtrembl.petstoreapp.model;
 
-import com.chtrembl.petstoreapp.telemetry.TelemetryClient;
-import jakarta.annotation.PostConstruct;
+import com.chtrembl.petstoreapp.telemetry.PetStoreTelemetryClient;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +30,10 @@ public class User {
 	private boolean initialTelemetryRecorded;
 
 	@Autowired(required = false)
-	private transient TelemetryClient telemetryClient;
+	private transient PetStoreTelemetryClient telemetryClient;
 
 	@Autowired
 	private ContainerEnvironment containerEnvironment;
-
-	@PostConstruct
-	private void initialize() {
-		if (this.telemetryClient == null) {
-			this.telemetryClient = new TelemetryClient();
-		}
-	}
 
 	public synchronized void setPets(List<Pet> pets) {
 		this.pets = pets;
@@ -51,8 +43,16 @@ public class User {
 		this.products = products;
 	}
 
+	public synchronized String getName() {
+		return this.name != null ? this.name : "Guest";
+	}
+
+	public synchronized void setName(String name) {
+		this.name = name != null ? name : "Guest";
+	}
+
 	public Map<String, String> getCustomEventProperties() {
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put("session_Id", this.sessionId);
 		properties.put("appDate", this.containerEnvironment.getAppDate());
 		properties.put("appVersion", this.containerEnvironment.getAppVersion());

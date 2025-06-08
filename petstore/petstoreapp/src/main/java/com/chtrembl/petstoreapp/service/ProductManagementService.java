@@ -17,6 +17,8 @@ import java.util.List;
 
 import static com.chtrembl.petstoreapp.config.Constants.CATEGORY;
 import static com.chtrembl.petstoreapp.config.Constants.OPERATION;
+import static com.chtrembl.petstoreapp.config.Constants.REQUEST_ID;
+import static com.chtrembl.petstoreapp.config.Constants.TRACE_ID;
 import static com.chtrembl.petstoreapp.model.Status.AVAILABLE;
 
 @Service
@@ -33,6 +35,12 @@ public class ProductManagementService {
 
         MDC.put(OPERATION, "getProducts");
         MDC.put(CATEGORY, category);
+
+        String requestId = MDC.get(REQUEST_ID);
+        String traceId = MDC.get(TRACE_ID);
+
+        log.info("Starting product retrieval operation [RequestID: {}, TraceID: {}, Category: {}]",
+                requestId, traceId, category);
 
         try {
             this.sessionUser.getTelemetryClient().trackEvent(
@@ -55,11 +63,14 @@ public class ProductManagementService {
                         .toList();
             }
 
-            log.info("Successfully retrieved {} products for category {} with tags {}",
-                    products.size(), category, tags);
+            log.info("Successfully retrieved {} products for category {} with tags {} [RequestID: {}, TraceID: {}]",
+                    products.size(), category, tags, requestId, traceId);
 
             return products;
         } catch (FeignException fe) {
+            log.error("Feign error retrieving products [RequestID: {}, TraceID: {}, Category: {}, HTTP: {}, Message: {}]",
+                    requestId, traceId, category, fe.status(), fe.getMessage(), fe);
+
             this.sessionUser.getTelemetryClient().trackException(fe);
             this.sessionUser.getTelemetryClient().trackEvent(
                     String.format("PetStoreApp %s received Feign error %s (HTTP %d), container host: %s",

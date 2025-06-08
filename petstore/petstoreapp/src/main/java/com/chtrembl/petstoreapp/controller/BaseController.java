@@ -61,7 +61,7 @@ public abstract class BaseController {
      */
     @ModelAttribute
     public void setModel(HttpServletRequest request, Model model, OAuth2AuthenticationToken token) {
-        setupSessionUser(request, model);
+        setupSessionUser(request, model, token); // Pass token to session setup
         setupAuthenticationDetails(model, token);
         setupContainerInfo(model);
         setupCacheInfo(model);
@@ -70,7 +70,7 @@ public abstract class BaseController {
     /**
      * Setup session user information.
      */
-    private void setupSessionUser(HttpServletRequest request, Model model) {
+    private void setupSessionUser(HttpServletRequest request, Model model, OAuth2AuthenticationToken token) {
         CaffeineCache caffeineCache = (CaffeineCache) this.currentUsersCacheManager
                 .getCache(CURRENT_USERS_HUB);
 
@@ -78,6 +78,15 @@ public abstract class BaseController {
             String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
             sessionUser.setSessionId(sessionId);
             caffeineCache.put(sessionUser.getSessionId(), sessionUser.getName());
+        }
+
+        if (token != null) {
+            final OAuth2User user = token.getPrincipal();
+            String authenticatedUserName = (String) user.getAttributes().get("name");
+            if (authenticatedUserName != null && !authenticatedUserName.equals(sessionUser.getName())) {
+                sessionUser.setName(authenticatedUserName);
+                log.debug("Updated session user name to: {}", authenticatedUserName);
+            }
         }
 
         MDC.put(SESSION_ID, sessionUser.getSessionId());
@@ -98,6 +107,13 @@ public abstract class BaseController {
         if (token != null) {
             final OAuth2User user = token.getPrincipal();
 
+            String authenticatedUserName = (String) user.getAttributes().get("name");
+            if (authenticatedUserName != null) {
+                sessionUser.setName(authenticatedUserName);
+                MDC.put(USER_NAME, authenticatedUserName);
+                model.addAttribute(MODEL_USER_NAME, authenticatedUserName);
+            }
+
             String userEmail = extractUserEmail(user);
             if (userEmail != null) {
                 sessionUser.setEmail(userEmail);
@@ -109,8 +125,6 @@ public abstract class BaseController {
                 log.warn("Could not extract email for user: {}", sessionUser.getName());
             }
 
-            sessionUser.setName((String) user.getAttributes().get("name"));
-            MDC.put(USER_NAME, sessionUser.getName());
             MDC.put(AUTH_TYPE, "OAuth2");
             MDC.put(IS_AUTHENTICATED, "true");
 
@@ -130,6 +144,7 @@ public abstract class BaseController {
         } else {
             MDC.put(AUTH_TYPE, "Anonymous");
             MDC.put(IS_AUTHENTICATED, "false");
+            model.addAttribute(MODEL_USER_LOGGED_IN, false);
         }
     }
 

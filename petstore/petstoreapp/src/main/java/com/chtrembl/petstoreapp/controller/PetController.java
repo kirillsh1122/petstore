@@ -53,26 +53,41 @@ public class PetController extends BaseController {
                          HttpServletRequest request,
                          @RequestParam(name = "category") String category) throws URISyntaxException {
 
-        // Validate category parameter
+        sessionUser.getTelemetryClient().trackMetric("TestMetric", System.currentTimeMillis() % 100);
+
+        trackPageView(request, category.toLowerCase() + "breeds");
+
+        sessionUser.getTelemetryClient().trackMetric("PageViews_" + category, 1);
+
         if (!isValidCategory(category)) {
             log.warn("Invalid category requested: {}", category);
+            sessionUser.getTelemetryClient().trackMetric("InvalidCategoryRequests", 1);
             return VIEW_HOME;
         }
 
         log.debug("PetStoreApp /{} breeds requested for category: {}",
                 category.toLowerCase(), category);
 
-        trackPageView(request, category.toLowerCase() + "breeds");
-
         try {
+            long startTime = System.currentTimeMillis();
+
             final Collection<Pet> pets = this.petStoreService.getPets(category);
             model.addAttribute(MODEL_PETS, pets);
+
+            long duration = System.currentTimeMillis() - startTime;
+
+            sessionUser.getTelemetryClient().trackMetric("PetLoadDuration_" + category, duration);
+            sessionUser.getTelemetryClient().trackMetric("PetsFound_" + category, pets != null ? pets.size() : 0);
+            sessionUser.getTelemetryClient().trackMetric("TotalPetsLoaded", pets != null ? pets.size() : 0);
 
             log.info("Successfully loaded {} pets for category: {}",
                     pets != null ? pets.size() : 0, category);
 
         } catch (Exception ex) {
             log.error("Error loading pets from service for category {}: ", category, ex);
+            sessionUser.getTelemetryClient().trackMetric("PetLoadErrors", 1);
+            sessionUser.getTelemetryClient().trackMetric("PetLoadErrors_" + category, 1);
+
             model.addAttribute(MODEL_ERROR, "Sorry, we couldn't load pet breeds.");
             model.addAttribute(MODEL_STACKTRACE, getStackTrace(ex));
         }
@@ -91,7 +106,6 @@ public class PetController extends BaseController {
                                @RequestParam(name = "category") String category,
                                @RequestParam(name = "id") int id) throws URISyntaxException {
 
-        // Validate category parameter
         if (!isValidCategory(category)) {
             log.warn("Invalid category requested for breed details: {}", category);
             return VIEW_HOME;
@@ -102,13 +116,11 @@ public class PetController extends BaseController {
         trackPageView(request, "breeddetails");
 
         try {
-            // Ensure pets are loaded
             if (sessionUser.getPets() == null) {
                 log.debug("Pets not loaded in session, loading for category: {}", category);
                 this.petStoreService.getPets(category);
             }
 
-            // Validate pet ID and retrieve pet
             if (sessionUser.getPets() == null || sessionUser.getPets().isEmpty()) {
                 throw new IllegalArgumentException("No pets available in session");
             }
