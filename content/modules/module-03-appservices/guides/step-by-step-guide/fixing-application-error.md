@@ -24,6 +24,25 @@ This usually means the container was pulled successfully, but failed to start co
 
 ---
 
+## How to check container startup logs (Deployment Center)
+
+1. Go to your **App Service** in the Azure Portal.
+2. In the left-hand menu, click **Deployment Center**.
+3. Switch to the **Logs** tab.
+4. Here you’ll find detailed logs from the Docker Engine — including pull status, startup execution, and error codes.
+
+These logs are especially helpful if:
+
+* The container exited immediately after startup
+* There's a port or entrypoint mismatch
+* The app crashed due to environment or runtime config issues
+
+Example:
+
+<img src="images/deployment-center-logs-sample.png" width="800" style="border: 1px solid #ccc; margin: 20px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); display: inline-block;" />
+
+---
+
 ## Solution steps
 
 ### Step 1: Set `WEBSITES_PORT` (Required) and `EXPOSE` (Recommended)
