@@ -1,0 +1,26 @@
+name: Deploy Resource Group and ACR
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: module_4
+    - uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - uses: azure/bicep-deploy@v2
+      with:
+        type: deploymentStack
+        operation: create
+        name: RG_and_ACR
+        location: eastus
+        scope: subscription
+        subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+        template-file: ./arm_templates.resource_template.json
+        parameters-file: ./arm_templates.resource_template.parameters.json
+        description: "Development Environment"
