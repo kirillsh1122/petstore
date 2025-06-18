@@ -21,8 +21,8 @@ jobs:
         location: eastus
         scope: subscription
         subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
-        template-file: ./arm_templates.resource_template.json
-        parameters-file: ./arm_templates.resource_template.parameters.json
+        template-file: ./arm_templates/resource_template.json
+        parameters-file: ./arm_templates/resource_template.parameters.json
         action-on-unmanage-resources: delete
         action-on-unmanage-resourcegroups: delete
         deny-settings-mode: denyWriteAndDelete
