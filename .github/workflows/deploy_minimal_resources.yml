@@ -23,4 +23,6 @@ jobs:
         subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
         template-file: ./arm_templates.resource_template.json
         parameters-file: ./arm_templates.resource_template.parameters.json
+        action-on-unmanage-resources: delete
+        action-on-unmanage-resourcegroups: delete
         description: "Development Environment"
