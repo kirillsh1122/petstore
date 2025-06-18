@@ -25,4 +25,5 @@ jobs:
         parameters-file: ./arm_templates.resource_template.parameters.json
         action-on-unmanage-resources: delete
         action-on-unmanage-resourcegroups: delete
+        deny-settings-mode: denyWriteAndDelete
         description: "Development Environment"
