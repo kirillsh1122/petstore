@@ -35,7 +35,7 @@ public class User implements Serializable {
 	private List<Product> products;
 
 	@Autowired(required = false)
-	private transient TelemetryClient telemetryClient;
+	private transient com.chtrembl.petstoreapp.service.TelemetryClient telemetryClient;
 
 	@Autowired
 	private ContainerEnvironment containerEnvironment;
@@ -75,7 +75,7 @@ public class User implements Serializable {
 		this.email = email;
 	}
 
-	public TelemetryClient getTelemetryClient() {
+	public com.chtrembl.petstoreapp.service.TelemetryClient getTelemetryClient() {
 		return this.telemetryClient;
 	}
 
