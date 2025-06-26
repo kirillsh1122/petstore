@@ -165,6 +165,13 @@ public class PetStoreServiceImpl implements PetStoreService {
 					String.format("PetStoreApp user %s selected total: %d products", this.sessionUser.getName(), pCnt),
 					this.sessionUser.getCustomEventProperties(), null);
 			
+			// Introduce an error in PetStoreServiceImpl.getProducts() by adding the line			
+			try {
+				throw new Exception("Cannot move further");
+			} catch (Exception e) {
+				this.sessionUser.getTelemetryClient().trackException(e); // track exception
+			}
+			
 			return products;
 		} catch (
 
@@ -188,7 +195,7 @@ public class PetStoreServiceImpl implements PetStoreService {
 			product.setCategory(new Category());
 			product.setId((long) 0);
 			products.add(product);
-		}
+		} 
 		return products;
 	}
 
