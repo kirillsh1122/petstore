@@ -120,6 +120,14 @@ public class PetStoreServiceImpl implements PetStoreService {
 	@Override
 	public Collection<Product> getProducts(String category, List<Tag> tags) {
 		List<Product> products = new ArrayList<>();
+		
+		// in PetStoreServiceImpl.getProducts(), add a custom metric (using TelemetryClient) 
+		// to store information about who is making the request (i.e., username and session)
+		this.sessionUser.getTelemetryClient().trackEvent(
+				String.format(
+						"PetStoreApp user %s (session: %s) is making a request on behalf of PetStorePetService!!!",
+						this.sessionUser.getName(), this.sessionUser.getSessionId()),
+				this.sessionUser.getCustomEventProperties(), null);
 
 		try {
 			Consumer<HttpHeaders> consumer = it -> it.addAll(this.webRequest.getHeaders());
@@ -148,6 +156,15 @@ public class PetStoreServiceImpl implements PetStoreService {
 				products = products.stream().filter(product -> category.equals(product.getCategory().getName())
 						&& product.getTags().toString().contains("small")).collect(Collectors.toList());
 			}
+			
+			
+			// add logging to PetStoreServiceImpl.getProducts() for the number of items that were returned to user
+			int pCnt = products.size(); // get resulting product count
+			this.sessionUser.getTelemetryClient().trackMetric("SelectedProductCount", pCnt); // track metric
+			this.sessionUser.getTelemetryClient().trackEvent(
+					String.format("PetStoreApp user %s selected total: %d products", this.sessionUser.getName(), pCnt),
+					this.sessionUser.getCustomEventProperties(), null);
+			
 			return products;
 		} catch (
 
