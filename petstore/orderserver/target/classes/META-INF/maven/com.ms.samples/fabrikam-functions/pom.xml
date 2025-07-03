@@ -91,7 +91,7 @@
                     <!-- function app resource group -->
                     <resourceGroup>demo_rg</resourceGroup>
                     <!-- function app service plan name -->
-                    <appServicePlanName>ASP-demorg-b574</appServicePlanName>
+                    <appServicePlanName>ASP-demorg-9474</appServicePlanName>
                     <!-- function app region-->
                     <!-- refers https://github.com/microsoft/azure-maven-plugins/wiki/Azure-Functions:-Configuration-Details#supported-regions for all valid values -->
                     <region>eastus</region>

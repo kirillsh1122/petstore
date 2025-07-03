@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(
         name = "reserver-service",
-        url = "https://fabrikam-functions-20250702110656703.azurewebsites.net/",
+        url = "${petstore.service.orderreserver.url}",
         configuration = FeignConfig.class
 )
 public interface OrderItemsReserverClient {
