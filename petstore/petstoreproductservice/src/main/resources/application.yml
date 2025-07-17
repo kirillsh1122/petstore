@@ -1,6 +1,9 @@
 spring:
   cloud:
     azure:
+      credential:
+        managed-identity-enabled: true
+        client-id: ${SPN_ID}
       keyvault:
         secret:
           property-source-enabled: true
