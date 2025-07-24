@@ -30,6 +30,12 @@ management:
     security:
       enabled: false
 spring:
+  jms:
+    template:
+      default-destination: "orderqueue"
+    servicebus:
+      pricing-tier: "Standard"
+      connection-string: "Endpoint=sb://kirylsh.servicebus.windows.net/;SharedAccessKeyName=queuePublisher;SharedAccessKey=***********;EntityPath=orderqueue"
   application:
     name: petstoreapp
   thymeleaf:
