@@ -11,6 +11,8 @@ bin/
 **/.openapi-generator/
 .openapi-generator-ignore
 
+.factorypath
+
 #Eclipse files
 **/.project
 **/.classpath
