@@ -32,10 +32,10 @@ management:
 spring:
   jms:
     template:
-      default-destination: "orderqueue"
+      default-destination: ${QUEUE_NAME}
     servicebus:
-      pricing-tier: "Standard"
-      connection-string: "Endpoint=sb://kirylsh.servicebus.windows.net/;SharedAccessKeyName=queuePublisher;SharedAccessKey=***********;EntityPath=orderqueue"
+      pricing-tier: ${PRICING_TIER}
+      connection-string: ${CONNECTION_STRING}
   application:
     name: petstoreapp
   thymeleaf:
