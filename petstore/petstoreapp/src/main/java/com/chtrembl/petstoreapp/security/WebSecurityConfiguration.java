@@ -12,12 +12,16 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.util.StringUtils;
 
+import com.azure.spring.cloud.autoconfigure.implementation.aadb2c.security.AadB2cOidcLoginConfigurer;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 @Slf4j
 public class WebSecurityConfiguration {
     private final ContainerEnvironment containerEnvironment;
+    
+    private final AadB2cOidcLoginConfigurer configurer;
 
 	@Value("${petstore.security.enabled:true}")
 	private boolean securityEnabled;
@@ -55,6 +59,7 @@ public class WebSecurityConfiguration {
                             .requestMatchers("/actuator/health").permitAll()
                             .requestMatchers("/actuator/info").permitAll()
                             .anyRequest().authenticated())
+                    .with(configurer, c -> {})
                     .oauth2Login(oauth2 -> oauth2
                             .loginPage("/login")
                             .defaultSuccessUrl("/", true));
