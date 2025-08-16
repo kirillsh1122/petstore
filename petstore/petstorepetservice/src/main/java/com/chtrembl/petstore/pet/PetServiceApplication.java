@@ -2,6 +2,8 @@ package com.chtrembl.petstore.pet;
 
 import com.chtrembl.petstore.pet.model.ContainerEnvironment;
 import com.chtrembl.petstore.pet.model.DataPreload;
+import com.chtrembl.petstore.pet.model.PetRepository;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
@@ -17,8 +19,8 @@ public class PetServiceApplication implements CommandLineRunner {
 	}
 
 	@Bean
-	public DataPreload dataPreload() {
-		return new DataPreload();
+	public DataPreload dataPreload(PetRepository petRepository) {
+		return new DataPreload(petRepository);
 	}
 
 	@Override
