@@ -45,8 +45,9 @@ public class PetManagementService {
         
         try {
             this.sessionUser.getTelemetryClient().trackEvent(
-                    String.format("PetStoreApp user %s is requesting to retrieve pets from the PetStorePetService",
-                            this.sessionUser.getName()),
+                    String.format("PetStoreApp user %s (session: %s) is requesting to retrieve pets from the PetStorePetService",
+                            this.sessionUser.getName(),
+                            this.sessionUser.getSessionId()),
                     this.sessionUser.getCustomEventProperties(), null);
 
             pets = petServiceClient.getPetsByStatus(AVAILABLE.getValue());

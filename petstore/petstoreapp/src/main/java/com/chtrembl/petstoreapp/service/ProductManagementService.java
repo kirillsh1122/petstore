@@ -44,8 +44,9 @@ public class ProductManagementService {
 
         try {
             this.sessionUser.getTelemetryClient().trackEvent(
-                    String.format("PetStoreApp user %s is requesting to retrieve products from the ProductService",
-                            this.sessionUser.getName()),
+                    String.format("PetStoreApp user %s (session: %s) is requesting to retrieve products from the ProductService",
+                            this.sessionUser.getName(),
+                            this.sessionUser.getSessionId()),
                     this.sessionUser.getCustomEventProperties(), null);
 
             products = productServiceClient.getProductsByStatus(AVAILABLE.getValue());
@@ -65,6 +66,12 @@ public class ProductManagementService {
 
             log.info("Successfully retrieved {} products for category {} with tags {} [RequestID: {}, TraceID: {}]",
                     products.size(), category, tags, requestId, traceId);
+            
+            this.sessionUser.getTelemetryClient().trackEvent(
+                    String.format("PetStoreApp user %s selected total: %d products",
+                            this.sessionUser.getName(),
+                            products.size()),
+                    this.sessionUser.getCustomEventProperties(), null);
 
             return products;
         } catch (FeignException fe) {
