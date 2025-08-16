@@ -1,17 +1,23 @@
 package com.chtrembl.petstore.pet.model;
 
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-
-import java.util.ArrayList;
+import org.springframework.stereotype.Component;
+import jakarta.annotation.PostConstruct;
 import java.util.List;
 
-@Configuration
-@EnableConfigurationProperties
-@ConfigurationProperties("data")
+@Component
 @Data
-public class DataPreload {
-	private List<Pet> pets = new ArrayList<>();
+public class DataPreload{
+	
+	private final PetRepository petRepository;
+	private List<Pet> pets;
+	
+	public DataPreload(PetRepository petRepository) {
+        this.petRepository = petRepository;
+    }
+	
+	@PostConstruct
+    public void loadData() {
+		this.pets = (List<Pet>) petRepository.findAll();
+    }
 }

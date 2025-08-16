@@ -13,14 +13,32 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
 @Data
+@Entity
+@Table(name="pet", schema="public")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Pet {
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Valid
+    @ManyToOne
     private Category category;
 
     @NotNull
@@ -31,9 +49,18 @@ public class Pet {
     private String photoURL;
 
     @Valid
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+    		name = "pet_tag",
+    		joinColumns=
+    			@JoinColumn(name="pet_id"),
+    		inverseJoinColumns=
+            	@JoinColumn(name="tag_id")
+    )
     @Builder.Default
     private List<Tag> tags = new ArrayList<>();
 
+    @Convert(converter = StatusConverter.class)
     private Status status;
 
     public Pet name(String name) {

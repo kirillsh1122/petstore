@@ -16,7 +16,11 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.annotation.Id;
+
 @Data
+@Document
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -33,6 +37,7 @@ public class Order {
 			description = "Order identifier (typically session ID)",
 			example = "68FAE9B1D86B794F0AE0ADD35A437428"
 	)
+	@Id
 	private String id;
 
 	@Size(max = 255, message = "Email must not exceed 255 characters")
