@@ -3,6 +3,6 @@
   "Values": {
     "AzureWebJobsStorage": "",
     "FUNCTIONS_WORKER_RUNTIME": "java",
-	"AzureConnectionString": "Endpoint=sb://kirylsh.servicebus.windows.net/;SharedAccessKeyName=queueListener;SharedAccessKey=*******************;EntityPath=orderqueue"
+	"AzureConnectionString": "Endpoint=sb://kirylsh.servicebus.windows.net/;SharedAccessKeyName=*****;SharedAccessKey=*****/7bf***g4s7Q=;EntityPath=orderqueue"
   }
 }
