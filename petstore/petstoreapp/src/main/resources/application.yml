@@ -52,7 +52,19 @@ spring:
         b2c:
           # Enable this together with 'petstore.service.security.enabled = true' in Module 10
           enabled: ${PETSTOREAPP_B2C_ENABLED:false}
-          # Add base-uri, client-id, client-secret, login-flow, logout-success-url, and user-flows
+          profile:
+            tenant-id: ${PETSTOREAPP_B2C_TENANT_ID}
+          base-uri: ${PETSTOREAPP_B2C_BASE_URI}
+          credential:
+            client-id: ${PETSTOREAPP_B2C_CLIENT_ID}
+            client-secret: '${PETSTOREAPP_B2C_CLIENT_SECRET}'
+          login-flow: sign-up-or-sign-in
+          logout-success-url: ${PETSTOREAPP_B2C_LOGOUT_SUCCESS_URL}
+          user-flows:
+            sign-up-or-sign-in: ${PETSTOREAPP_B2C_SIGNIN_SIGNUP_FLOW}
+            profile-edit: ${PETSTOREAPP_B2C_PROFILE_EDIT_FLOW}
+            password-reset: ${PETSTOREAPP_B2C_PASSWORD_RESET_FLOW}
+            # Add base-uri, client-id, client-secret, login-flow, logout-success-url, and user-flows
 logging:
   level:
     root: INFO
