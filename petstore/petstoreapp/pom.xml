@@ -130,6 +130,10 @@
             <artifactId>applicationinsights-core</artifactId>
             <version>${applicationinsights.version}</version>
         </dependency>
+        <dependency>
+		  <groupId>com.azure.spring</groupId>
+		  <artifactId>spring-cloud-azure-starter-servicebus-jms</artifactId>
+		</dependency>
     </dependencies>
 
     <dependencyManagement>

@@ -30,6 +30,12 @@ management:
     security:
       enabled: false
 spring:
+  jms:
+    template:
+      default-destination: ${QUEUE_NAME}
+    servicebus:
+      pricing-tier: ${PRICING_TIER}
+      connection-string: ${CONNECTION_STRING}
   application:
     name: petstoreapp
   thymeleaf:
